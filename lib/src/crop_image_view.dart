@@ -87,6 +87,10 @@ class _CropImageViewState extends State<CropImageView> {
 
   Container showSelectedImage(BuildContext context, File selectedImageValue) {
     double width = MediaQuery.of(context).size.width;
+
+    String path = selectedImageValue.path;
+    bool isThatVideo = path.contains("mp4", path.length - 5);
+
     return Container(
       key: GlobalKey(debugLabel: "have image"),
       color: widget.whiteColor,
@@ -99,7 +103,11 @@ class _CropImageViewState extends State<CropImageView> {
             ValueListenableBuilder(
               valueListenable: widget.expandImage,
               builder: (context, bool expandImageValue, child) =>
-                  cropImageWidget(selectedImageValue, expandImageValue),
+                  cropImageWidget(
+                selectedImageValue,
+                expandImageValue,
+                isThatVideo,
+              ),
             ),
             if (widget.topPosition != null) ...[
               Align(
@@ -134,41 +142,45 @@ class _CropImageViewState extends State<CropImageView> {
                 ),
               ),
             ],
-            Align(
-              alignment: Alignment.bottomLeft,
-              child: Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      widget.expandImage.value = !widget.expandImage.value;
-                    });
-                  },
-                  child: Container(
-                    height: 35,
-                    width: 35,
-                    decoration: BoxDecoration(
-                      color: const Color.fromARGB(165, 58, 58, 58),
-                      border: Border.all(
-                        color: const Color.fromARGB(45, 250, 250, 250),
+            if (!isThatVideo)
+              Align(
+                alignment: Alignment.bottomLeft,
+                child: Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        widget.expandImage.value = !widget.expandImage.value;
+                      });
+                    },
+                    child: Container(
+                      height: 35,
+                      width: 35,
+                      decoration: BoxDecoration(
+                        color: const Color.fromARGB(165, 58, 58, 58),
+                        border: Border.all(
+                          color: const Color.fromARGB(45, 250, 250, 250),
+                        ),
+                        shape: BoxShape.circle,
                       ),
-                      shape: BoxShape.circle,
+                      child: const CustomExpandIcon(),
                     ),
-                    child: const CustomExpandIcon(),
                   ),
                 ),
               ),
-            ),
           ],
         ),
       ),
     );
   }
 
-  Widget cropImageWidget(File selectedImageValue, bool expandImageValue) {
+  Widget cropImageWidget(
+    File selectedImageValue,
+    bool expandImageValue,
+    bool isThatVideo,
+  ) {
     GlobalKey<CustomCropState> cropKey = widget.cropKey.value;
-    String path = selectedImageValue.path;
-    bool isThatVideo = path.contains("mp4", path.length - 5);
+
     return CustomCrop(
       image: selectedImageValue,
       isThatImage: !isThatVideo,
