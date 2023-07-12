@@ -4,6 +4,7 @@ import 'package:image_picker_plus/image_picker_plus.dart';
 import 'package:image_picker_plus/src/crop_image_view.dart';
 import 'package:image_picker_plus/src/custom_packages/crop_image/crop_image.dart';
 import 'package:image_picker_plus/src/custom_packages/crop_image/main/image_crop.dart';
+import 'package:image_picker_plus/src/entities/path_wrapper.dart';
 import 'package:image_picker_plus/src/image.dart';
 import 'package:image_picker_plus/src/multi_selection_mode.dart';
 import 'package:flutter/foundation.dart';
@@ -21,6 +22,8 @@ class ImagesViewPage extends StatefulWidget {
   final bool showInternalImages;
   final int maximumSelection;
   final AsyncValueSetter<SelectedImagesDetails>? callbackFunction;
+
+  final bool sortPathsByModifiedDate;
 
   /// To avoid lag when you interacting with image when it expanded
   final AppTheme appTheme;
@@ -46,6 +49,7 @@ class ImagesViewPage extends StatefulWidget {
     required this.gridDelegate,
     required this.maximumSelection,
     this.callbackFunction,
+    this.sortPathsByModifiedDate = false,
   }) : super(key: key);
 
   @override
@@ -103,36 +107,80 @@ class _ImagesViewPageState extends State<ImagesViewPage>
     scaleOfCropsKeys.dispose();
     areaOfCropsKeys.dispose();
     indexOfSelectedImages.dispose();
+    _paths.clear();
     super.dispose();
   }
 
   late Widget forBack;
+  late FilterOptionGroup options;
+
+  /// Map for all path entity.
+  ///
+  /// Using [Map] in order to save the thumbnail data
+  /// for the first asset under the path.
+  List<PathWrapper<AssetPathEntity>> get paths => _paths;
+  final List<PathWrapper<AssetPathEntity>> _paths =
+      <PathWrapper<AssetPathEntity>>[];
+
+  /// The path which is currently using.
+  PathWrapper<AssetPathEntity>? get currentPath => _currentPath;
+  PathWrapper<AssetPathEntity>? _currentPath;
+  void _setCurrentPath(PathWrapper<AssetPathEntity>? path) {
+    if (path == _currentPath) {
+      return;
+    }
+    setState(() {
+      _currentPath = path;
+      if (path != null) {
+        final int index = _paths.indexWhere(
+          (PathWrapper<AssetPathEntity> p) => p.path.id == path.path.id,
+        );
+        if (index != -1) {
+          _paths[index] = path;
+        }
+      }
+    });
+  }
+
+  final Duration _initializeDelayDuration = const Duration(milliseconds: 250);
+
   @override
   void initState() {
-    _fetchNewMedia(currentPageValue: 0);
+    Future<void>.delayed(_initializeDelayDuration, () async {
+      await _getPaths();
+      await _getAssetsFromCurrentPath();
+    });
+
+    // _fetchNewMedia(0);
     super.initState();
   }
 
-  bool _handleScrollEvent(ScrollNotification scroll,
-      {required int currentPageValue, required int lastPageValue}) {
-    if (scroll.metrics.pixels / scroll.metrics.maxScrollExtent > 0.33 &&
-        currentPageValue != lastPageValue) {
-      _fetchNewMedia(currentPageValue: currentPageValue);
-      return true;
-    }
-    return false;
-  }
+  Future<void> _getPaths() async {
+    // Initial base options.
+    // Enable need title for audios and image to get proper display.
+    options = FilterOptionGroup(
+      imageOption: const FilterOption(
+        needTitle: true,
+        sizeConstraint: SizeConstraint(ignoreSize: true),
+      ),
+      audioOption: const FilterOption(
+        needTitle: true,
+        sizeConstraint: SizeConstraint(ignoreSize: true),
+      ),
+      containsPathModified: widget.sortPathsByModifiedDate,
+    );
 
-  _fetchNewMedia({required int currentPageValue}) async {
-    lastPage.value = currentPageValue;
     PermissionState result = await PhotoManager.requestPermissionExtend();
+
     if (result.isAuth) {
       RequestType type = widget.showInternalVideos && widget.showInternalImages
           ? RequestType.common
           : (widget.showInternalImages ? RequestType.image : RequestType.video);
 
-      List<AssetPathEntity> albums =
-          await PhotoManager.getAssetPathList(onlyAll: true, type: type);
+      List<AssetPathEntity> albums = await PhotoManager.getAssetPathList(
+        type: type,
+        filterOption: options,
+      );
       if (albums.isEmpty) {
         WidgetsBinding.instance
             .addPostFrameCallback((_) => setState(() => noImages = true));
@@ -140,28 +188,133 @@ class _ImagesViewPageState extends State<ImagesViewPage>
       } else if (noImages) {
         noImages = false;
       }
-      List<AssetEntity> media =
-          await albums[0].getAssetListPaged(page: currentPageValue, size: 60);
-      List<FutureBuilder<Uint8List?>> temp = [];
-      List<File?> imageTemp = [];
-
-      for (int i = 0; i < media.length; i++) {
-        FutureBuilder<Uint8List?> gridViewImage =
-            await getImageGallery(media, i);
-        File? image = await highQualityImage(media, i);
-        temp.add(gridViewImage);
-        imageTemp.add(image);
+      for (final AssetPathEntity pathEntity in albums) {
+        final int index = _paths.indexWhere(
+          (PathWrapper<AssetPathEntity> p) => p.path.id == pathEntity.id,
+        );
+        final PathWrapper<AssetPathEntity> wrapper =
+            PathWrapper<AssetPathEntity>(
+          path: pathEntity,
+        );
+        if (index == -1) {
+          _paths.add(wrapper);
+        } else {
+          _paths[index] = wrapper;
+        }
       }
-      _mediaList.value.addAll(temp);
-      allImages.value.addAll(imageTemp);
-      selectedImage.value = allImages.value[0];
-      currentPage.value++;
-      isImagesReady.value = true;
-      WidgetsBinding.instance.addPostFrameCallback((_) => setState(() {}));
+
+      // Set first path entity as current path entity.
+      if (_paths.isNotEmpty) {
+        _currentPath ??= _paths.first;
+      }
     } else {
       await PhotoManager.requestPermissionExtend();
       PhotoManager.openSetting();
     }
+  }
+
+  /// Get assets list from current path entity.
+  Future<void> _getAssetsFromCurrentPath() async {
+    if (_currentPath != null && _paths.isNotEmpty) {
+      final PathWrapper<AssetPathEntity> wrapper = _currentPath!;
+      final int assetCount =
+          wrapper.assetCount ?? await wrapper.path.assetCountAsync;
+
+      if (wrapper.assetCount == null) {
+        _setCurrentPath(_currentPath!.copyWith(assetCount: assetCount));
+      }
+      await _fetchNewMedia(0, path: currentPath!.path);
+    } else {
+      noImages = true;
+    }
+  }
+
+  Future<void> _swithcPath(PathWrapper<AssetPathEntity>? path) async {
+    if (path == null && _currentPath == null) {
+      return;
+    }
+    path ??= _currentPath!;
+    _currentPath = path;
+
+    _mediaList.value.clear();
+    allImages.value.clear();
+
+    await _getAssetsFromCurrentPath();
+    scrollController.jumpTo(0);
+  }
+
+  bool _handleScrollEvent(ScrollNotification scroll,
+      {required int currentPageValue, required int lastPageValue}) {
+    if (scroll.metrics.pixels / scroll.metrics.maxScrollExtent > 0.33 &&
+        currentPageValue != lastPageValue) {
+      _fetchNewMedia(currentPageValue);
+      return true;
+    }
+    return false;
+  }
+
+  _fetchNewMedia(int currentPageValue, {AssetPathEntity? path}) async {
+    lastPage.value = currentPageValue;
+    path ??= currentPath!.path;
+
+    // PermissionState result = await PhotoManager.requestPermissionExtend();
+    // if (result.isAuth) {
+    // RequestType type = widget.showInternalVideos && widget.showInternalImages
+    //     ? RequestType.common
+    //     : (widget.showInternalImages ? RequestType.image : RequestType.video);
+
+    // List<AssetPathEntity> albums = await PhotoManager.getAssetPathList(
+    //   type: type,
+    //   filterOption: options,
+    // );
+    // if (albums.isEmpty) {
+    //   WidgetsBinding.instance
+    //       .addPostFrameCallback((_) => setState(() => noImages = true));
+    //   return;
+    // } else if (noImages) {
+    //   noImages = false;
+    // }
+    // for (final AssetPathEntity pathEntity in albums) {
+    //   final int index = _paths.indexWhere(
+    //     (PathWrapper<AssetPathEntity> p) => p.path.id == pathEntity.id,
+    //   );
+    //   final PathWrapper<AssetPathEntity> wrapper =
+    //       PathWrapper<AssetPathEntity>(
+    //     path: pathEntity,
+    //   );
+    //   if (index == -1) {
+    //     _paths.add(wrapper);
+    //   } else {
+    //     _paths[index] = wrapper;
+    //   }
+    // }
+
+    // // Set first path entity as current path entity.
+    // if (_paths.isNotEmpty) {
+    //   _currentPath ??= _paths.first;
+    // }
+
+    List<AssetEntity> media =
+        await path.getAssetListPaged(page: currentPageValue, size: 60);
+    List<FutureBuilder<Uint8List?>> temp = [];
+    List<File?> imageTemp = [];
+
+    for (int i = 0; i < media.length; i++) {
+      FutureBuilder<Uint8List?> gridViewImage = await getImageGallery(media, i);
+      File? image = await highQualityImage(media, i);
+      temp.add(gridViewImage);
+      imageTemp.add(image);
+    }
+    _mediaList.value.addAll(temp);
+    allImages.value.addAll(imageTemp);
+    selectedImage.value = allImages.value[0];
+    currentPage.value++;
+    isImagesReady.value = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) => setState(() {}));
+    // } else {
+    //   await PhotoManager.requestPermissionExtend();
+    //   PhotoManager.openSetting();
+    // }
   }
 
   Future<FutureBuilder<Uint8List?>> getImageGallery(
@@ -242,13 +395,20 @@ class _ImagesViewPageState extends State<ImagesViewPage>
                         children: [
                           normalAppBar(),
                           Flexible(
-                              child: normalGridView(mediaListValue,
-                                  currentPageValue, lastPageValue)),
+                            child: normalGridView(
+                              mediaListValue,
+                              currentPageValue,
+                              lastPageValue,
+                            ),
+                          ),
                         ],
                       );
                     } else {
                       return instagramGridView(
-                          mediaListValue, currentPageValue, lastPageValue);
+                        mediaListValue,
+                        currentPageValue,
+                        lastPageValue,
+                      );
                     }
                   },
                 ),
@@ -648,16 +808,16 @@ class _ImagesViewPageState extends State<ImagesViewPage>
               ValueListenableBuilder(
             valueListenable: expandImageView,
             builder: (context, bool expandImageValue, child) {
-              double a = expandedHeightValue - 360;
+              double a = expandedHeightValue - 418;
               double expandHeightV = a < 0 ? a : 0;
               double moveAwayHeightV =
-                  moveAwayHeightValue < 360 ? moveAwayHeightValue * -1 : -360;
+                  moveAwayHeightValue < 418 ? moveAwayHeightValue * -1 : -418;
               double topPosition =
                   expandImageValue ? expandHeightV : moveAwayHeightV;
               enableVerticalTapping.value = !(topPosition == 0);
               double padding = 2;
-              if (scrollPixels < 416) {
-                double pixels = 416 - scrollPixels;
+              if (scrollPixels < 472) {
+                double pixels = 472 - scrollPixels;
                 padding = pixels >= 58 ? pixels + 2 : 58;
               } else if (expandImageValue) {
                 padding = 58;
@@ -683,14 +843,16 @@ class _ImagesViewPageState extends State<ImagesViewPage>
                           noDuration.value = false;
                           if (notification is ScrollEndNotification) {
                             expandHeight.value =
-                                expandedHeightValue > 240 ? 360 : 0;
+                                expandedHeightValue > 240 ? 418 : 0;
                             isScrolling = false;
                           }
                         });
 
-                        _handleScrollEvent(notification,
-                            currentPageValue: currentPageValue,
-                            lastPageValue: lastPageValue);
+                        _handleScrollEvent(
+                          notification,
+                          currentPageValue: currentPageValue,
+                          lastPageValue: lastPageValue,
+                        );
                         return true;
                       },
                       child: Padding(
@@ -727,6 +889,9 @@ class _ImagesViewPageState extends State<ImagesViewPage>
                           clearMultiImages: clearMultiImages,
                           topPosition: topPosition,
                           whiteColor: widget.whiteColor,
+                          assetPaths: _paths,
+                          assetPathSelected: _currentPath,
+                          onAssetPathChanged: _swithcPath,
                         ),
                       ],
                     ),
