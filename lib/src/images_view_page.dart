@@ -257,43 +257,6 @@ class _ImagesViewPageState extends State<ImagesViewPage>
     lastPage.value = currentPageValue;
     path ??= currentPath!.path;
 
-    // PermissionState result = await PhotoManager.requestPermissionExtend();
-    // if (result.isAuth) {
-    // RequestType type = widget.showInternalVideos && widget.showInternalImages
-    //     ? RequestType.common
-    //     : (widget.showInternalImages ? RequestType.image : RequestType.video);
-
-    // List<AssetPathEntity> albums = await PhotoManager.getAssetPathList(
-    //   type: type,
-    //   filterOption: options,
-    // );
-    // if (albums.isEmpty) {
-    //   WidgetsBinding.instance
-    //       .addPostFrameCallback((_) => setState(() => noImages = true));
-    //   return;
-    // } else if (noImages) {
-    //   noImages = false;
-    // }
-    // for (final AssetPathEntity pathEntity in albums) {
-    //   final int index = _paths.indexWhere(
-    //     (PathWrapper<AssetPathEntity> p) => p.path.id == pathEntity.id,
-    //   );
-    //   final PathWrapper<AssetPathEntity> wrapper =
-    //       PathWrapper<AssetPathEntity>(
-    //     path: pathEntity,
-    //   );
-    //   if (index == -1) {
-    //     _paths.add(wrapper);
-    //   } else {
-    //     _paths[index] = wrapper;
-    //   }
-    // }
-
-    // // Set first path entity as current path entity.
-    // if (_paths.isNotEmpty) {
-    //   _currentPath ??= _paths.first;
-    // }
-
     List<AssetEntity> media =
         await path.getAssetListPaged(page: currentPageValue, size: 60);
     List<FutureBuilder<Uint8List?>> temp = [];
