@@ -36,6 +36,7 @@ class CustomImagePickerState extends State<CustomImagePicker>
   final selectedVideo = ValueNotifier(false);
   bool noGallery = true;
   ValueNotifier<File?> selectedCameraImage = ValueNotifier(null);
+  ValueNotifier<File?> selectedCameraVideo = ValueNotifier(null);
   late bool cropImage;
   late AppTheme appTheme;
   late TabsTexts tapsNames;
@@ -103,12 +104,25 @@ class CustomImagePickerState extends State<CustomImagePicker>
     selectedVideo.dispose();
     selectedPage.dispose();
     selectedCameraImage.dispose();
+    selectedCameraVideo.dispose();
     pageController.dispose();
     clearVideoRecord.dispose();
     redDeleteText.dispose();
     multiSelectionMode.dispose();
     multiSelectedImage.dispose();
     super.dispose();
+  }
+
+  bool topSafeArea() {
+    switch (widget.source) {
+      case ImageSource.both:
+        return selectedPage.value == SelectedPage.left;
+      case ImageSource.camera:
+        return false;
+      case ImageSource.gallery:
+      default:
+        return true;
+    }
   }
 
   @override
@@ -129,6 +143,7 @@ class CustomImagePickerState extends State<CustomImagePicker>
                   redDeleteText.value = true;
                 } else {
                   selectedCameraImage.value = null;
+                  selectedCameraVideo.value = null;
                   clearVideoRecord.value = true;
                   showDeleteText.value = false;
                   redDeleteText.value = false;
@@ -204,6 +219,7 @@ class CustomImagePickerState extends State<CustomImagePicker>
 
   SafeArea safeArea() {
     return SafeArea(
+      top: topSafeArea(),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -260,6 +276,7 @@ class CustomImagePickerState extends State<CustomImagePicker>
       builder: (context, bool selectedVideoValue, child) => CustomCameraDisplay(
         appTheme: appTheme,
         selectedCameraImage: selectedCameraImage,
+        selectedCameraVideo: selectedCameraVideo,
         tapsNames: tapsNames,
         enableCamera: enableCamera,
         enableVideo: enableVideo,
