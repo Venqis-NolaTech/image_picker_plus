@@ -10,7 +10,7 @@ import 'package:flutter/material.dart';
 class CustomImagePicker extends StatefulWidget {
   final ImageSource source;
   final bool multiSelection;
-  final GalleryDisplaySettings? galleryDisplaySettings;
+  final GalleryDisplaySettings galleryDisplaySettings;
   final PickerSource pickerSource;
   const CustomImagePicker({
     required this.source,
@@ -62,6 +62,9 @@ class CustomImagePickerState extends State<CustomImagePicker>
   late bool showAllTabs;
   late AsyncValueSetter<SelectedImagesDetails>? callbackFunction;
 
+  ValueNotifier<List<FutureBuilder<Uint8List?>>> mediaListCurrentAlbum =
+      ValueNotifier([]);
+
   @override
   void initState() {
     _initializeVariables();
@@ -69,8 +72,7 @@ class CustomImagePickerState extends State<CustomImagePicker>
   }
 
   _initializeVariables() {
-    imagePickerDisplay =
-        widget.galleryDisplaySettings ?? GalleryDisplaySettings();
+    imagePickerDisplay = widget.galleryDisplaySettings;
     appTheme = imagePickerDisplay.appTheme ?? AppTheme();
     tapsNames = imagePickerDisplay.tabsTexts ?? TabsTexts();
     callbackFunction = imagePickerDisplay.callbackFunction;
@@ -212,6 +214,26 @@ class CustomImagePickerState extends State<CustomImagePicker>
     });
   }
 
+  moveToCamera() {
+    centerPage(
+      numPage: cameraVideoOnlyEnabled ? 0 : 1,
+      selectedPage:
+          cameraVideoOnlyEnabled ? SelectedPage.left : SelectedPage.center,
+    );
+  }
+
+  moveToGallery() {
+    setState(() {
+      selectedPage.value = SelectedPage.left;
+      selectedVideo.value = false;
+    });
+    pageController.value.animateToPage(
+      0,
+      duration: const Duration(milliseconds: 400),
+      curve: Curves.easeInOutQuad,
+    );
+  }
+
   DefaultTabController tabController() {
     return DefaultTabController(
         length: 2, child: Material(color: whiteColor, child: safeArea()));
@@ -246,15 +268,19 @@ class CustomImagePickerState extends State<CustomImagePicker>
                   if (!showImagePreview) {
                     if (multiSelectionModeValue) {
                       return clearSelectedImages();
-                    } else {
-                      return buildTabBar();
                     }
-                  } else {
-                    return Visibility(
-                      visible: !multiSelectionModeValue,
-                      child: buildTabBar(),
-                    );
+
+                    // else {
+                    //   return buildTabBar();
+                    // }
                   }
+                  //  else {
+                  //   return Visibility(
+                  //     visible: !multiSelectionModeValue,
+                  //     child: buildTabBar(),
+                  //   );
+                  // }
+                  return const SizedBox.shrink();
                 } else {
                   return multiSelectionModeValue
                       ? clearSelectedImages()
@@ -275,6 +301,7 @@ class CustomImagePickerState extends State<CustomImagePicker>
       valueListenable: selectedVideo,
       builder: (context, bool selectedVideoValue, child) => CustomCameraDisplay(
         appTheme: appTheme,
+        galleryDisplaySettings: widget.galleryDisplaySettings,
         selectedCameraImage: selectedCameraImage,
         selectedCameraVideo: selectedCameraVideo,
         tapsNames: tapsNames,
@@ -284,7 +311,10 @@ class CustomImagePickerState extends State<CustomImagePicker>
         clearVideoRecord: clearVideoRecord,
         redDeleteText: redDeleteText,
         moveToVideoScreen: moveToVideo,
+        enableMoveToGallery: widget.source == ImageSource.both,
+        moveToGalleryScreen: moveToGallery,
         selectedVideo: selectedVideoValue,
+        mediaListCurrentAlbum: mediaListCurrentAlbum.value,
       ),
     );
   }
@@ -313,57 +343,59 @@ class CustomImagePickerState extends State<CustomImagePicker>
       showInternalVideos: showInternalVideos,
       showInternalImages: showInternalImages,
       maximumSelection: maximumSelection,
+      moveToCamera: moveToCamera,
+      mediaListCurrentAlbum: mediaListCurrentAlbum,
     );
   }
 
-  ValueListenableBuilder<bool> buildTabBar() {
-    return ValueListenableBuilder(
-      valueListenable: showDeleteText,
-      builder: (context, bool showDeleteTextValue, child) => AnimatedSwitcher(
-        duration: const Duration(milliseconds: 200),
-        switchInCurve: Curves.easeInOutQuart,
-        child: widget.source == ImageSource.both ||
-                widget.pickerSource == PickerSource.both
-            ? (showDeleteTextValue ? tapBarMessage(true) : tabBar())
-            : const SizedBox(),
-      ),
-    );
-  }
+  // ValueListenableBuilder<bool> buildTabBar() {
+  //   return ValueListenableBuilder(
+  //     valueListenable: showDeleteText,
+  //     builder: (context, bool showDeleteTextValue, child) => AnimatedSwitcher(
+  //       duration: const Duration(milliseconds: 200),
+  //       switchInCurve: Curves.easeInOutQuart,
+  //       child: widget.source == ImageSource.both ||
+  //               widget.pickerSource == PickerSource.both
+  //           ? (showDeleteTextValue ? tapBarMessage(true) : tabBar())
+  //           : const SizedBox(),
+  //     ),
+  //   );
+  // }
 
-  Widget tabBar() {
-    double widthOfScreen = MediaQuery.of(context).size.width;
-    int divideNumber = showAllTabs ? 3 : 2;
-    double widthOfTab = widthOfScreen / divideNumber;
-    return ValueListenableBuilder(
-      valueListenable: selectedPage,
-      builder: (context, SelectedPage selectedPageValue, child) {
-        Color photoColor =
-            selectedPageValue == SelectedPage.center ? blackColor : Colors.grey;
-        return Stack(
-          alignment: Alignment.bottomLeft,
-          children: [
-            Row(
-              children: [
-                if (noGallery) galleryTabBar(widthOfTab, selectedPageValue),
-                if (enableCamera) photoTabBar(widthOfTab, photoColor),
-                if (enableVideo) videoTabBar(widthOfTab),
-              ],
-            ),
-            AnimatedPositioned(
-              duration: const Duration(milliseconds: 500),
-              curve: Curves.easeInOutQuad,
-              right: selectedPageValue == SelectedPage.center
-                  ? widthOfTab
-                  : (selectedPageValue == SelectedPage.right
-                      ? 0
-                      : (divideNumber == 2 ? widthOfTab : widthOfScreen / 1.5)),
-              child: Container(height: 1, width: widthOfTab, color: blackColor),
-            ),
-          ],
-        );
-      },
-    );
-  }
+  // Widget tabBar() {
+  //   double widthOfScreen = MediaQuery.of(context).size.width;
+  //   int divideNumber = showAllTabs ? 3 : 2;
+  //   double widthOfTab = widthOfScreen / divideNumber;
+  //   return ValueListenableBuilder(
+  //     valueListenable: selectedPage,
+  //     builder: (context, SelectedPage selectedPageValue, child) {
+  //       Color photoColor =
+  //           selectedPageValue == SelectedPage.center ? blackColor : Colors.grey;
+  //       return Stack(
+  //         alignment: Alignment.bottomLeft,
+  //         children: [
+  //           Row(
+  //             children: [
+  //               if (noGallery) galleryTabBar(widthOfTab, selectedPageValue),
+  //               if (enableCamera) photoTabBar(widthOfTab, photoColor),
+  //               if (enableVideo) videoTabBar(widthOfTab),
+  //             ],
+  //           ),
+  //           AnimatedPositioned(
+  //             duration: const Duration(milliseconds: 500),
+  //             curve: Curves.easeInOutQuad,
+  //             right: selectedPageValue == SelectedPage.center
+  //                 ? widthOfTab
+  //                 : (selectedPageValue == SelectedPage.right
+  //                     ? 0
+  //                     : (divideNumber == 2 ? widthOfTab : widthOfScreen / 1.5)),
+  //             child: Container(height: 1, width: widthOfTab, color: blackColor),
+  //           ),
+  //         ],
+  //       );
+  //     },
+  //   );
+  // }
 
   GestureDetector galleryTabBar(
       double widthOfTab, SelectedPage selectedPageValue) {

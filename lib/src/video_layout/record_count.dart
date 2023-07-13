@@ -3,16 +3,18 @@ import 'package:flutter/material.dart';
 
 class RecordCount extends StatefulWidget {
   final ValueNotifier<bool> startVideoCount;
-  final ValueNotifier<bool> makeProgressRed;
   final ValueNotifier<bool> clearVideoRecord;
+  final ValueNotifier<Duration> recordStopwatch;
   final AppTheme appTheme;
+  final bool appThemeCameraInvert;
 
   const RecordCount({
     Key? key,
     required this.appTheme,
     required this.startVideoCount,
-    required this.makeProgressRed,
     required this.clearVideoRecord,
+    required this.recordStopwatch,
+    this.appThemeCameraInvert = false,
   }) : super(key: key);
 
   @override
@@ -30,6 +32,7 @@ class RecordCountState extends State<RecordCount>
     if (controller.isDismissed) {
       return '0:00';
     } else {
+      widget.recordStopwatch.value = count;
       return '${(count.inMinutes % 60).toString().padLeft(1, '0')}:${(count.inSeconds % 60).toString().padLeft(2, '0')}';
     }
   }
@@ -95,50 +98,41 @@ class RecordCountState extends State<RecordCount>
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        LinearProgressIndicator(
-          color: widget.makeProgressRed.value
-              ? Colors.red
-              : widget.appTheme.focusColor,
-          backgroundColor: Colors.transparent,
-          value: progress,
-          minHeight: 3,
-        ),
         Visibility(
           visible: widget.startVideoCount.value,
           maintainSize: true,
           maintainAnimation: true,
           maintainState: true,
-          child: Padding(
-            padding: const EdgeInsets.only(top: 30),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                AnimatedOpacity(
-                  opacity: opacityLevel,
-                  duration: const Duration(seconds: 1),
-                  child: const Icon(Icons.fiber_manual_record_rounded,
-                      color: Colors.red, size: 10),
-                  onEnd: () {
-                    if (isPlaying) {
-                      setState(
-                          () => opacityLevel = opacityLevel == 0 ? 1.0 : 0.0);
-                    }
-                  },
-                ),
-                const SizedBox(width: 5),
-                AnimatedBuilder(
-                  animation: controller,
-                  builder: (context, child) => Text(
-                    countText,
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.normal,
-                      color: widget.appTheme.focusColor,
-                    ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              AnimatedOpacity(
+                opacity: opacityLevel,
+                duration: const Duration(seconds: 1),
+                child: const Icon(Icons.fiber_manual_record_rounded,
+                    color: Colors.red, size: 10),
+                onEnd: () {
+                  if (isPlaying) {
+                    setState(
+                        () => opacityLevel = opacityLevel == 0 ? 1.0 : 0.0);
+                  }
+                },
+              ),
+              const SizedBox(width: 5),
+              AnimatedBuilder(
+                animation: controller,
+                builder: (context, child) => Text(
+                  countText,
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.normal,
+                    color: widget.appThemeCameraInvert
+                        ? widget.appTheme.primaryColor
+                        : widget.appTheme.focusColor,
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ],

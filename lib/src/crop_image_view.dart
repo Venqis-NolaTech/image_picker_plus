@@ -1,8 +1,9 @@
 import 'dart:io';
-import 'package:image_picker_plus/src/custom_expand_icon.dart';
-import 'package:image_picker_plus/src/entities/app_theme.dart';
-import 'package:image_picker_plus/src/custom_packages/crop_image/crop_image.dart';
+
 import 'package:flutter/material.dart';
+import 'package:image_picker_plus/src/custom_expand_icon.dart';
+import 'package:image_picker_plus/src/custom_packages/crop_image/crop_image.dart';
+import 'package:image_picker_plus/src/entities/app_theme.dart';
 import 'package:image_picker_plus/src/entities/path_wrapper.dart';
 import 'package:image_picker_plus/src/scale_text.dart';
 import 'package:photo_manager/photo_manager.dart';
@@ -21,6 +22,7 @@ class CropImageView extends StatefulWidget {
   final ValueNotifier<File?> selectedImage;
 
   final VoidCallback clearMultiImages;
+  final VoidCallback? moveToCamera;
 
   final AppTheme appTheme;
   final ValueNotifier<bool> noDuration;
@@ -49,6 +51,7 @@ class CropImageView extends StatefulWidget {
     required this.onAssetPathChanged,
     this.assetPathSelected,
     this.topPosition,
+    this.moveToCamera,
   }) : super(key: key);
 
   @override
@@ -154,6 +157,7 @@ class _CropImageViewState extends State<CropImageView> {
     return Container(
       color: widget.appTheme.primaryColor,
       alignment: Alignment.bottomCenter,
+      padding: const EdgeInsets.only(right: 8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
@@ -161,6 +165,7 @@ class _CropImageViewState extends State<CropImageView> {
           const Spacer(),
           if (widget.topPosition != null)
             _multiSelectIconBtn(multiSelectionModeValue),
+          _cameraBtn(multiSelectionModeValue),
         ],
       ),
     );
@@ -243,56 +248,65 @@ class _CropImageViewState extends State<CropImageView> {
   }
 
   Widget _cropIconBtn() {
-    return Padding(
-      padding: const EdgeInsets.all(10.0),
-      child: GestureDetector(
-        onTap: () {
-          setState(() {
-            widget.expandImage.value = !widget.expandImage.value;
-          });
-        },
-        child: Container(
-          height: 35,
-          width: 35,
-          decoration: BoxDecoration(
-            color: const Color.fromARGB(165, 58, 58, 58),
-            border: Border.all(
-              color: const Color.fromARGB(45, 250, 250, 250),
-            ),
-            shape: BoxShape.circle,
-          ),
-          child: const CustomExpandIcon(),
-        ),
+    return ElevatedButton(
+      onPressed: () {
+        setState(() {
+          widget.expandImage.value = !widget.expandImage.value;
+        });
+      },
+      style: ElevatedButton.styleFrom(
+        elevation: 0,
+        fixedSize: const Size.fromRadius(19),
+        shape: const CircleBorder(),
+        backgroundColor: const Color.fromARGB(165, 58, 58, 58),
+      ),
+      child: const SizedBox(
+        width: 35,
+        height: 35,
+        child: CustomExpandIcon(),
       ),
     );
   }
 
   Widget _multiSelectIconBtn(bool multiSelectionModeValue) {
-    return Padding(
-      padding: const EdgeInsets.all(10.0),
-      child: GestureDetector(
-        onTap: () {
-          if (multiSelectionModeValue) widget.clearMultiImages();
-          setState(() {
-            widget.multiSelectionMode.value = !multiSelectionModeValue;
-          });
-        },
-        child: Container(
-          height: 35,
-          width: 35,
-          decoration: BoxDecoration(
-            color: multiSelectionModeValue
-                ? widget.appTheme.accentColor
-                : const Color.fromARGB(165, 58, 58, 58),
-            border: Border.all(
-              color: const Color.fromARGB(45, 250, 250, 250),
-            ),
-            shape: BoxShape.circle,
-          ),
-          child: const Center(
-            child: Icon(Icons.copy, color: Colors.white, size: 17),
-          ),
+    return ElevatedButton(
+      onPressed: () {
+        if (multiSelectionModeValue) widget.clearMultiImages();
+        setState(() {
+          widget.multiSelectionMode.value = !multiSelectionModeValue;
+        });
+      },
+      style: ElevatedButton.styleFrom(
+        elevation: 0,
+        padding: EdgeInsets.zero,
+        minimumSize: const Size.fromRadius(19),
+        shape: const CircleBorder(),
+        backgroundColor: multiSelectionModeValue
+            ? widget.appTheme.accentColor
+            : const Color.fromARGB(165, 58, 58, 58),
+      ),
+      child: Center(
+        child: Transform.scale(
+          alignment: Alignment.center,
+          scaleX: -1,
+          child: const Icon(Icons.filter_none, color: Colors.white, size: 19),
         ),
+      ),
+    );
+  }
+
+  Widget _cameraBtn(bool multiSelectionModeValue) {
+    return ElevatedButton(
+      onPressed: widget.moveToCamera,
+      style: ElevatedButton.styleFrom(
+        elevation: 0,
+        padding: EdgeInsets.zero,
+        minimumSize: const Size.fromRadius(19),
+        shape: const CircleBorder(),
+        backgroundColor: const Color.fromARGB(165, 58, 58, 58),
+      ),
+      child: const Center(
+        child: Icon(Icons.photo_camera_outlined, color: Colors.white, size: 20),
       ),
     );
   }

@@ -190,8 +190,11 @@ class _MyHomePageState extends State<MyHomePage> {
           /// On long tap, it will be available.
           multiSelection: true,
 
-          galleryDisplaySettings:
-              GalleryDisplaySettings(cropImage: true, showImagePreview: true),
+          galleryDisplaySettings: GalleryDisplaySettings(
+            cropImage: true,
+            showImagePreview: true,
+            appThemeCameraInvert: true,
+          ),
         );
         if (details != null) await displayDetails(details);
       },
@@ -205,10 +208,6 @@ class _MyHomePageState extends State<MyHomePage> {
         ImagePickerPlus picker = ImagePickerPlus(context);
         SelectedImagesDetails? details = await picker.pickBoth(
           source: ImageSource.camera,
-
-          /// On long tap, it will be available.
-          multiSelection: true,
-
           galleryDisplaySettings: GalleryDisplaySettings(
             cropImage: true,
           ),
@@ -225,10 +224,6 @@ class _MyHomePageState extends State<MyHomePage> {
         ImagePickerPlus picker = ImagePickerPlus(context);
         SelectedImagesDetails? details = await picker.pickVideo(
           source: ImageSource.camera,
-
-          /// On long tap, it will be available.
-          multiVideos: true,
-
           galleryDisplaySettings: GalleryDisplaySettings(
             appTheme:
                 AppTheme(focusColor: Colors.white, primaryColor: Colors.black),

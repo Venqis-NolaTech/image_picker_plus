@@ -13,6 +13,7 @@ import 'package:photo_manager/photo_manager.dart';
 import 'package:shimmer/shimmer.dart';
 
 class ImagesViewPage extends StatefulWidget {
+  final ValueNotifier<List<FutureBuilder<Uint8List?>>> mediaListCurrentAlbum;
   final ValueNotifier<List<File>> multiSelectedImages;
   final ValueNotifier<bool> multiSelectionMode;
   final TabsTexts tabsTexts;
@@ -22,6 +23,7 @@ class ImagesViewPage extends StatefulWidget {
   final bool showInternalImages;
   final int maximumSelection;
   final AsyncValueSetter<SelectedImagesDetails>? callbackFunction;
+  final VoidCallback? moveToCamera;
 
   final bool sortPathsByModifiedDate;
 
@@ -48,7 +50,9 @@ class ImagesViewPage extends StatefulWidget {
     required this.showImagePreview,
     required this.gridDelegate,
     required this.maximumSelection,
+    required this.mediaListCurrentAlbum,
     this.callbackFunction,
+    this.moveToCamera,
     this.sortPathsByModifiedDate = false,
   }) : super(key: key);
 
@@ -239,6 +243,7 @@ class _ImagesViewPageState extends State<ImagesViewPage>
 
     _mediaList.value.clear();
     allImages.value.clear();
+    widget.mediaListCurrentAlbum.value.clear();
 
     selectedImage.value = null;
 
@@ -277,6 +282,7 @@ class _ImagesViewPageState extends State<ImagesViewPage>
     }
     _mediaList.value.addAll(temp);
     allImages.value.addAll(imageTemp);
+    widget.mediaListCurrentAlbum.value.addAll(temp);
     if (currentPageValue == 0) selectedImage.value = allImages.value[0];
     currentPage.value++;
     isImagesReady.value = true;
@@ -716,7 +722,9 @@ class _ImagesViewPageState extends State<ImagesViewPage>
           if (widget.showImagePreview && multiSelectionValue.contains(image)) {
             int index =
                 multiSelectionValue.indexWhere((element) => element == image);
-            if (indexOfLatestImage != -1) {
+            if (indexOfLatestImage != -1 &&
+                scaleOfCropsKeys.value.isNotEmpty &&
+                (scaleOfCropsKeys.value.length - 1) <= indexOfLatestImage) {
               scaleOfCropsKeys.value[indexOfLatestImage] =
                   cropKey.value.currentState?.scale;
               areaOfCropsKeys.value[indexOfLatestImage] =
@@ -864,6 +872,7 @@ class _ImagesViewPageState extends State<ImagesViewPage>
                           assetPaths: _paths,
                           assetPathSelected: _currentPath,
                           onAssetPathChanged: _swithcPath,
+                          moveToCamera: widget.moveToCamera,
                         ),
                       ],
                     ),

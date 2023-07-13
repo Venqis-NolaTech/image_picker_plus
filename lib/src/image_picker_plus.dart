@@ -55,7 +55,8 @@ class ImagePickerPlus {
     return await Navigator.of(_context, rootNavigator: true).push(
       MaterialPageRoute(
         builder: (context) => CustomImagePicker(
-          galleryDisplaySettings: galleryDisplaySettings,
+          galleryDisplaySettings:
+              galleryDisplaySettings ?? GalleryDisplaySettings(),
           multiSelection: multiSelection,
           pickerSource: pickerSource,
           source: source,
