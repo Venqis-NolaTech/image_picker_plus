@@ -41,15 +41,14 @@ class _MyHomePageState extends State<MyHomePage> {
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // normal1(context),
-              // normal2(context),
-              // normal3(context),
-              // preview1(context),
-              // preview2(context),
-              // preview3(context),
-              preview4(context),
-              // camera1(context),
-              // camera2(context),
+              normal1(context),
+              normal2(context),
+              normal3(context),
+              preview1(context),
+              preview2(context),
+              preview3(context),
+              camera1(context),
+              camera2(context),
             ]),
       ),
     );
@@ -197,25 +196,6 @@ class _MyHomePageState extends State<MyHomePage> {
         if (details != null) await displayDetails(details);
       },
       child: const Text("Preview 3"),
-    );
-  }
-
-  ElevatedButton preview4(BuildContext context) {
-    return ElevatedButton(
-      onPressed: () async {
-        ImagePickerPlus picker = ImagePickerPlus(context);
-        SelectedImagesDetails? details = await picker.pickBoth(
-          source: ImageSource.both,
-
-          /// On long tap, it will be available.
-          multiSelection: true,
-
-          galleryDisplaySettings:
-              GalleryDisplaySettings(cropImage: true, showImagePreview: true),
-        );
-        if (details != null) await displayDetails(details);
-      },
-      child: const Text("Preview 4"),
     );
   }
 

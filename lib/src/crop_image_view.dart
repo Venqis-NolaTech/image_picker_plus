@@ -152,7 +152,7 @@ class _CropImageViewState extends State<CropImageView> {
 
   Widget _bottomPanelWidget(bool multiSelectionModeValue, bool isThatVideo) {
     return Container(
-      color: Colors.white,
+      color: widget.appTheme.primaryColor,
       alignment: Alignment.bottomCenter,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
@@ -176,7 +176,6 @@ class _CropImageViewState extends State<CropImageView> {
 
             final isSelected = widget.assetPathSelected?.path == wrapper;
             final name = wrapper.name;
-            final String semanticsCount = wrapper.assetCount.toString();
 
             return DropdownMenuItem<PathWrapper<AssetPathEntity>>(
               value: path,
@@ -191,14 +190,25 @@ class _CropImageViewState extends State<CropImageView> {
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  ScaleText(
-                    '($semanticsCount)',
-                    style: const TextStyle(
-                      color: Colors.grey,
-                      fontSize: 17,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                  FutureBuilder<int>(
+                    future: wrapper.assetCountAsync,
+                    builder: (context, snapshot) {
+                      int semanticsCount = 0;
+
+                      if (snapshot.hasData) {
+                        semanticsCount = snapshot.data ?? 0;
+                      }
+
+                      return ScaleText(
+                        '($semanticsCount)',
+                        style: const TextStyle(
+                          color: Colors.grey,
+                          fontSize: 17,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      );
+                    },
                   ),
                   if (isSelected)
                     const AspectRatio(
@@ -272,7 +282,7 @@ class _CropImageViewState extends State<CropImageView> {
           width: 35,
           decoration: BoxDecoration(
             color: multiSelectionModeValue
-                ? Colors.blue
+                ? widget.appTheme.accentColor
                 : const Color.fromARGB(165, 58, 58, 58),
             border: Border.all(
               color: const Color.fromARGB(45, 250, 250, 250),

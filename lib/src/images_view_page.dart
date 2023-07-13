@@ -151,7 +151,6 @@ class _ImagesViewPageState extends State<ImagesViewPage>
       await _getAssetsFromCurrentPath();
     });
 
-    // _fetchNewMedia(0);
     super.initState();
   }
 
@@ -236,11 +235,19 @@ class _ImagesViewPageState extends State<ImagesViewPage>
     path ??= _currentPath!;
     _currentPath = path;
 
+    isImagesReady.value = false;
+
     _mediaList.value.clear();
     allImages.value.clear();
 
+    selectedImage.value = null;
+
     await _getAssetsFromCurrentPath();
-    scrollController.jumpTo(0);
+
+    Future.delayed(
+      const Duration(milliseconds: 100),
+      () => scrollController.jumpTo(0),
+    );
   }
 
   bool _handleScrollEvent(ScrollNotification scroll,
@@ -270,14 +277,10 @@ class _ImagesViewPageState extends State<ImagesViewPage>
     }
     _mediaList.value.addAll(temp);
     allImages.value.addAll(imageTemp);
-    selectedImage.value = allImages.value[0];
+    if (currentPageValue == 0) selectedImage.value = allImages.value[0];
     currentPage.value++;
     isImagesReady.value = true;
     WidgetsBinding.instance.addPostFrameCallback((_) => setState(() {}));
-    // } else {
-    //   await PhotoManager.requestPermissionExtend();
-    //   PhotoManager.openSetting();
-    // }
   }
 
   Future<FutureBuilder<Uint8List?>> getImageGallery(
@@ -471,8 +474,8 @@ class _ImagesViewPageState extends State<ImagesViewPage>
       valueListenable: indexOfSelectedImages,
       builder: (context, List<int> indexOfSelectedImagesValue, child) =>
           IconButton(
-        icon: const Icon(Icons.arrow_forward_rounded,
-            color: Colors.blue, size: 30),
+        icon: Icon(Icons.arrow_forward_rounded,
+            color: widget.appTheme.accentColor, size: 30),
         onPressed: () async {
           double aspect = expandImage.value ? 6 / 8 : 1.0;
           if (widget.multiSelectionMode.value && widget.multiSelection) {
@@ -588,8 +591,13 @@ class _ImagesViewPageState extends State<ImagesViewPage>
             return ValueListenableBuilder(
               valueListenable: widget.multiSelectedImages,
               builder: (context, List<File> selectedImagesValue, child) {
+                if (mediaListValue.isEmpty || allImagesValue.isEmpty) {
+                  return Container();
+                }
+
                 FutureBuilder<Uint8List?> mediaList = mediaListValue[index];
                 File? image = allImagesValue[index];
+
                 if (image != null) {
                   bool imageSelected = selectedImagesValue.contains(image);
                   List<File> multiImages = selectedImagesValue;
@@ -603,6 +611,7 @@ class _ImagesViewPageState extends State<ImagesViewPage>
                         multiSelectionMode: widget.multiSelectionMode,
                         imageSelected: imageSelected,
                         multiSelectedImage: multiImages,
+                        selectdColor: widget.appTheme.accentColor,
                       ),
                     ],
                   );

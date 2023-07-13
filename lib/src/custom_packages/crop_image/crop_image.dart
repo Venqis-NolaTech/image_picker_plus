@@ -44,8 +44,7 @@ class CustomCrop extends StatefulWidget {
       context.findAncestorStateOfType<CustomCropState>();
 }
 
-class CustomCropState extends State<CustomCrop>
-    with TickerProviderStateMixin {
+class CustomCropState extends State<CustomCrop> with TickerProviderStateMixin {
   final _surfaceKey = GlobalKey();
 
   late final AnimationController _activeController;
@@ -165,6 +164,7 @@ class CustomCropState extends State<CustomCrop>
       child: ConstrainedBox(
         constraints: const BoxConstraints.expand(),
         child: Listener(
+          key: ValueKey(widget.image.path),
           onPointerDown: (event) => pointers++,
           onPointerUp: (event) => pointers = 0,
           child: GestureDetector(
@@ -174,6 +174,7 @@ class CustomCropState extends State<CustomCrop>
             onScaleUpdate: _isEnabled ? _handleScaleUpdate : null,
             onScaleEnd: _isEnabled ? _handleScaleEnd : null,
             child: AnimatedBuilder(
+              key: ValueKey(widget.image.path),
               builder: (context, child) {
                 if (widget.isThatImage) {
                   return buildCustomPaint();

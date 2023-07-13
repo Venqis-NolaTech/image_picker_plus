@@ -6,6 +6,7 @@ class MultiSelectionMode extends StatelessWidget {
   final ValueNotifier<bool> multiSelectionMode;
   final bool imageSelected;
   final List<File> multiSelectedImage;
+  final Color selectdColor;
 
   final File image;
   const MultiSelectionMode({
@@ -14,6 +15,7 @@ class MultiSelectionMode extends StatelessWidget {
     required this.imageSelected,
     required this.multiSelectedImage,
     required this.multiSelectionMode,
+    this.selectdColor = Colors.white,
   }) : super(key: key);
 
   @override
@@ -31,7 +33,7 @@ class MultiSelectionMode extends StatelessWidget {
               width: 25,
               decoration: BoxDecoration(
                 color: imageSelected
-                    ? Colors.blue
+                    ? selectdColor
                     : const Color.fromARGB(115, 222, 222, 222),
                 border: Border.all(
                   color: Colors.white,
