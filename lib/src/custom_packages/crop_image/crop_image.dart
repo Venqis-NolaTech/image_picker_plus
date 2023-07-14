@@ -655,36 +655,45 @@ class _DisplayVideoState extends State<_DisplayVideo> {
       future: initializeVideoPlayerFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
-          return Stack(
-            alignment: Alignment.center,
-            children: [
-              InteractiveViewer(
-                minScale: 1,
-                child: SizedBox(
-                    height: double.infinity,
-                    width: double.infinity,
-                    child: VideoPlayer(controller)),
-              ),
-              Align(
-                alignment: Alignment.center,
-                child: GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      if (controller.value.isPlaying) {
-                        controller.pause();
-                      } else {
-                        controller.play();
-                      }
-                    });
-                  },
+          return GestureDetector(
+            onTap: () {
+              setState(() {
+                if (controller.value.isPlaying) {
+                  controller.pause();
+                } else {
+                  controller.play();
+                }
+              });
+            },
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                InteractiveViewer(
+                  minScale: 1,
+                  child: FittedBox(
+                    fit: BoxFit.cover,
+                    child: SizedBox(
+                      // height: double.infinity,
+                      // width: double.infinity,
+                      height: controller.value.size.height,
+                      width: controller.value.size.width,
+                      child: VideoPlayer(controller),
+                    ),
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.center,
                   child: Icon(
                     controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
                     color: Colors.white,
-                    size: 45,
+                    shadows: const <Shadow>[
+                      Shadow(color: Colors.black38, blurRadius: 8.0)
+                    ],
+                    size: 58,
                   ),
-                ),
-              )
-            ],
+                )
+              ],
+            ),
           );
         } else {
           return const Center(

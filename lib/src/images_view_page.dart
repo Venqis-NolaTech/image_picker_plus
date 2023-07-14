@@ -396,6 +396,9 @@ class _ImagesViewPageState extends State<ImagesViewPage>
   }
 
   Widget loadingWidget() {
+    final width = MediaQuery.of(context).size.width;
+    final height = width + kToolbarHeight;
+
     return SingleChildScrollView(
       child: Column(
         children: [
@@ -408,7 +411,7 @@ class _ImagesViewPageState extends State<ImagesViewPage>
                 if (widget.showImagePreview) ...[
                   Container(
                       color: const Color(0xff696969),
-                      height: 360,
+                      height: height,
                       width: double.infinity),
                   const SizedBox(height: 1),
                 ],
@@ -780,6 +783,9 @@ class _ImagesViewPageState extends State<ImagesViewPage>
 
   Widget instagramGridView(List<FutureBuilder<Uint8List?>> mediaListValue,
       int currentPageValue, int lastPageValue) {
+    final width = MediaQuery.of(context).size.width;
+    final height = width + kToolbarHeight;
+
     return ValueListenableBuilder(
       valueListenable: expandHeight,
       builder: (context, double expandedHeightValue, child) {
@@ -789,10 +795,11 @@ class _ImagesViewPageState extends State<ImagesViewPage>
               ValueListenableBuilder(
             valueListenable: expandImageView,
             builder: (context, bool expandImageValue, child) {
-              double a = expandedHeightValue - 416;
+              double a = expandedHeightValue - height;
               double expandHeightV = a < 0 ? a : 0;
-              double moveAwayHeightV =
-                  moveAwayHeightValue < 416 ? moveAwayHeightValue * -1 : -416;
+              double moveAwayHeightV = moveAwayHeightValue < height
+                  ? moveAwayHeightValue * -1
+                  : -height;
               double topPosition =
                   expandImageValue ? expandHeightV : moveAwayHeightV;
               enableVerticalTapping.value = !(topPosition == 0);
@@ -805,7 +812,7 @@ class _ImagesViewPageState extends State<ImagesViewPage>
               } else if (noPaddingForGridView) {
                 padding = 50;
               } else {
-                padding = topPosition + 416;
+                padding = topPosition + height;
               }
               int duration = noDuration.value ? 0 : 250;
 

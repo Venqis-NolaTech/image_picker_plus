@@ -61,6 +61,9 @@ class CropImageView extends StatefulWidget {
 class _CropImageViewState extends State<CropImageView> {
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    final height = width + kToolbarHeight;
+
     return ValueListenableBuilder(
       valueListenable: widget.enableVerticalTapping,
       builder: (context, bool enableTappingValue, child) => GestureDetector(
@@ -74,8 +77,8 @@ class _CropImageViewState extends State<CropImageView> {
         onVerticalDragEnd: enableTappingValue && widget.topPosition != null
             ? (details) {
                 widget.expandHeight.value =
-                    widget.expandHeight.value > 260 ? 416 : 0;
-                if (widget.topPosition == -416) {
+                    widget.expandHeight.value > 260 ? height : 0;
+                if (widget.topPosition == -height) {
                   widget.enableVerticalTapping.value = true;
                 }
                 if (widget.topPosition == 0) {
@@ -106,8 +109,8 @@ class _CropImageViewState extends State<CropImageView> {
 
     return Container(
       key: GlobalKey(debugLabel: "have image"),
-      color: Colors.red, //widget.whiteColor,
-      height: 360 + 56,
+      color: widget.whiteColor,
+      height: width + kToolbarHeight,
       width: width,
       child: ValueListenableBuilder(
         valueListenable: widget.multiSelectionMode,
@@ -156,8 +159,9 @@ class _CropImageViewState extends State<CropImageView> {
   Widget _bottomPanelWidget(bool multiSelectionModeValue, bool isThatVideo) {
     return Container(
       color: widget.appTheme.primaryColor,
-      alignment: Alignment.bottomCenter,
-      padding: const EdgeInsets.only(right: 8, top: 8, bottom: 8),
+      alignment: Alignment.center,
+      padding: const EdgeInsets.only(right: 8),
+      height: kToolbarHeight,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
