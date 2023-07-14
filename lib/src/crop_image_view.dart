@@ -67,15 +67,15 @@ class _CropImageViewState extends State<CropImageView> {
         onVerticalDragUpdate: enableTappingValue && widget.topPosition != null
             ? (details) {
                 widget.expandImageView.value = true;
-                widget.expandHeight.value = details.globalPosition.dy - 56;
+                widget.expandHeight.value = details.globalPosition.dy - 50;
                 setState(() => widget.noDuration.value = true);
               }
             : null,
         onVerticalDragEnd: enableTappingValue && widget.topPosition != null
             ? (details) {
                 widget.expandHeight.value =
-                    widget.expandHeight.value > 260 ? 418 : 0;
-                if (widget.topPosition == -418) {
+                    widget.expandHeight.value > 260 ? 416 : 0;
+                if (widget.topPosition == -416) {
                   widget.enableVerticalTapping.value = true;
                 }
                 if (widget.topPosition == 0) {
@@ -106,8 +106,8 @@ class _CropImageViewState extends State<CropImageView> {
 
     return Container(
       key: GlobalKey(debugLabel: "have image"),
-      color: widget.whiteColor,
-      height: 416,
+      color: Colors.red, //widget.whiteColor,
+      height: 360 + 56,
       width: width,
       child: ValueListenableBuilder(
         valueListenable: widget.multiSelectionMode,
@@ -157,7 +157,7 @@ class _CropImageViewState extends State<CropImageView> {
     return Container(
       color: widget.appTheme.primaryColor,
       alignment: Alignment.bottomCenter,
-      padding: const EdgeInsets.only(right: 8),
+      padding: const EdgeInsets.only(right: 8, top: 8, bottom: 8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
@@ -206,8 +206,8 @@ class _CropImageViewState extends State<CropImageView> {
 
                       return ScaleText(
                         '($semanticsCount)',
-                        style: const TextStyle(
-                          color: Colors.grey,
+                        style: TextStyle(
+                          color: widget.appTheme.primaryColor,
                           fontSize: 17,
                         ),
                         maxLines: 1,
@@ -235,7 +235,10 @@ class _CropImageViewState extends State<CropImageView> {
               padding: const EdgeInsets.only(left: 12),
               child: ScaleText(
                 name,
-                style: const TextStyle(fontSize: 17),
+                style: TextStyle(
+                  fontSize: 17,
+                  color: widget.appTheme.focusColor,
+                ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),

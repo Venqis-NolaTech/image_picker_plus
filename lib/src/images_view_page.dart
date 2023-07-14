@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/scheduler.dart';
 import 'package:image_picker_plus/image_picker_plus.dart';
 import 'package:image_picker_plus/src/crop_image_view.dart';
 import 'package:image_picker_plus/src/custom_packages/crop_image/crop_image.dart';
@@ -788,23 +789,23 @@ class _ImagesViewPageState extends State<ImagesViewPage>
               ValueListenableBuilder(
             valueListenable: expandImageView,
             builder: (context, bool expandImageValue, child) {
-              double a = expandedHeightValue - 418;
+              double a = expandedHeightValue - 416;
               double expandHeightV = a < 0 ? a : 0;
               double moveAwayHeightV =
-                  moveAwayHeightValue < 418 ? moveAwayHeightValue * -1 : -418;
+                  moveAwayHeightValue < 416 ? moveAwayHeightValue * -1 : -416;
               double topPosition =
                   expandImageValue ? expandHeightV : moveAwayHeightV;
               enableVerticalTapping.value = !(topPosition == 0);
               double padding = 2;
               if (scrollPixels < 472) {
                 double pixels = 472 - scrollPixels;
-                padding = pixels >= 58 ? pixels + 2 : 58;
+                padding = pixels >= 50 ? pixels + 2 : 50;
               } else if (expandImageValue) {
-                padding = 58;
+                padding = 50;
               } else if (noPaddingForGridView) {
-                padding = 58;
+                padding = 50;
               } else {
-                padding = topPosition + 418;
+                padding = topPosition + 416;
               }
               int duration = noDuration.value ? 0 : 250;
 
@@ -817,15 +818,18 @@ class _ImagesViewPageState extends State<ImagesViewPage>
                         expandImageView.value = false;
                         moveAwayHeight.value = scrollController.position.pixels;
                         scrollPixels = scrollController.position.pixels;
-                        setState(() {
-                          isScrolling = true;
-                          noPaddingForGridView = false;
-                          noDuration.value = false;
-                          if (notification is ScrollEndNotification) {
-                            expandHeight.value =
-                                expandedHeightValue > 240 ? 418 : 0;
-                            isScrolling = false;
-                          }
+
+                        SchedulerBinding.instance.addPostFrameCallback((_) {
+                          setState(() {
+                            isScrolling = true;
+                            noPaddingForGridView = false;
+                            noDuration.value = false;
+                            if (notification is ScrollEndNotification) {
+                              expandHeight.value =
+                                  expandedHeightValue > 240 ? 416 : 0;
+                              isScrolling = false;
+                            }
+                          });
                         });
 
                         _handleScrollEvent(
