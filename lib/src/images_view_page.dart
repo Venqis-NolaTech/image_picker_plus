@@ -287,7 +287,10 @@ class _ImagesViewPageState extends State<ImagesViewPage>
     if (currentPageValue == 0) selectedImage.value = allImages.value[0];
     currentPage.value++;
     isImagesReady.value = true;
-    WidgetsBinding.instance.addPostFrameCallback((_) => setState(() {}));
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) setState(() {});
+    });
   }
 
   Future<FutureBuilder<Uint8List?>> getImageGallery(
@@ -337,6 +340,7 @@ class _ImagesViewPageState extends State<ImagesViewPage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
+
     return noImages
         ? Center(
             child: Text(
@@ -804,15 +808,15 @@ class _ImagesViewPageState extends State<ImagesViewPage>
                   expandImageValue ? expandHeightV : moveAwayHeightV;
               enableVerticalTapping.value = !(topPosition == 0);
               double padding = 2;
-              if (scrollPixels < 472) {
-                double pixels = 472 - scrollPixels;
-                padding = pixels >= 50 ? pixels + 2 : 50;
+              if (scrollPixels < height + 56) {
+                double pixels = height + 56 - scrollPixels;
+                padding = pixels >= 58 ? pixels + 2 : 58;
               } else if (expandImageValue) {
-                padding = 50;
+                padding = 58;
               } else if (noPaddingForGridView) {
-                padding = 50;
+                padding = 58;
               } else {
-                padding = topPosition + height;
+                padding = topPosition + height + 58;
               }
               int duration = noDuration.value ? 0 : 250;
 
@@ -833,7 +837,7 @@ class _ImagesViewPageState extends State<ImagesViewPage>
                             noDuration.value = false;
                             if (notification is ScrollEndNotification) {
                               expandHeight.value =
-                                  expandedHeightValue > 240 ? 416 : 0;
+                                  expandedHeightValue > 240 ? height : 0;
                               isScrolling = false;
                             }
                           });

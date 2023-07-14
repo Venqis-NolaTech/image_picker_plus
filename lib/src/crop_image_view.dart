@@ -103,6 +103,7 @@ class _CropImageViewState extends State<CropImageView> {
 
   Container showSelectedImage(BuildContext context, File selectedImageValue) {
     double width = MediaQuery.of(context).size.width;
+    final height = width + kToolbarHeight;
 
     String path = selectedImageValue.path;
     bool isThatVideo = path.contains("mp4", path.length - 5);
@@ -110,7 +111,7 @@ class _CropImageViewState extends State<CropImageView> {
     return Container(
       key: GlobalKey(debugLabel: "have image"),
       color: widget.whiteColor,
-      height: width + kToolbarHeight,
+      height: height,
       width: width,
       child: ValueListenableBuilder(
         valueListenable: widget.multiSelectionMode,
