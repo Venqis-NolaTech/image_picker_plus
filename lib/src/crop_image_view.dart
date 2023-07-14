@@ -7,6 +7,7 @@ import 'package:image_picker_plus/src/entities/app_theme.dart';
 import 'package:image_picker_plus/src/entities/path_wrapper.dart';
 import 'package:image_picker_plus/src/scale_text.dart';
 import 'package:photo_manager/photo_manager.dart';
+import 'package:image_picker_plus/src/utilities/extension.dart';
 
 class CropImageView extends StatefulWidget {
   final ValueNotifier<GlobalKey<CustomCropState>> cropKey;
@@ -29,6 +30,14 @@ class CropImageView extends StatefulWidget {
   final Color whiteColor;
   final double? topPosition;
 
+  final bool enableCamera;
+  final bool enableVideo;
+
+  final ButtonStyle? multiSelectIconBtnStyle;
+  final ButtonStyle? cameraBtnStyle;
+  final Icon? multiSelectIcon;
+  final Icon? cameraIcon;
+
   final List<PathWrapper<AssetPathEntity>> assetPaths;
   final PathWrapper<AssetPathEntity>? assetPathSelected;
   final Function(PathWrapper<AssetPathEntity>?) onAssetPathChanged;
@@ -49,9 +58,15 @@ class CropImageView extends StatefulWidget {
     required this.whiteColor,
     required this.assetPaths,
     required this.onAssetPathChanged,
+    required this.enableCamera,
+    required this.enableVideo,
     this.assetPathSelected,
     this.topPosition,
     this.moveToCamera,
+    this.multiSelectIconBtnStyle,
+    this.cameraBtnStyle,
+    this.multiSelectIcon,
+    this.cameraIcon,
   }) : super(key: key);
 
   @override
@@ -169,8 +184,9 @@ class _CropImageViewState extends State<CropImageView> {
           _pathsDropDownButton(),
           const Spacer(),
           if (widget.topPosition != null)
-            _multiSelectIconBtn(multiSelectionModeValue),
-          _cameraBtn(multiSelectionModeValue),
+            _multiSelectBtn(multiSelectionModeValue),
+          if (widget.enableCamera || widget.enableVideo)
+            _cameraBtn(multiSelectionModeValue),
         ],
       ),
     );
@@ -276,7 +292,7 @@ class _CropImageViewState extends State<CropImageView> {
     );
   }
 
-  Widget _multiSelectIconBtn(bool multiSelectionModeValue) {
+  Widget _multiSelectBtn(bool multiSelectionModeValue) {
     return ElevatedButton(
       onPressed: () {
         if (multiSelectionModeValue) widget.clearMultiImages();
@@ -284,21 +300,33 @@ class _CropImageViewState extends State<CropImageView> {
           widget.multiSelectionMode.value = !multiSelectionModeValue;
         });
       },
-      style: ElevatedButton.styleFrom(
-        elevation: 0,
-        padding: EdgeInsets.zero,
-        minimumSize: const Size.fromRadius(19),
-        shape: const CircleBorder(),
-        backgroundColor: multiSelectionModeValue
-            ? widget.appTheme.accentColor
-            : const Color.fromARGB(165, 58, 58, 58),
-      ),
+      style: widget.multiSelectIconBtnStyle ??
+          ElevatedButton.styleFrom(
+            elevation: 0,
+            padding: EdgeInsets.zero,
+            minimumSize: const Size.fromRadius(19),
+            shape: const CircleBorder(),
+            backgroundColor: multiSelectionModeValue
+                ? widget.appTheme.accentColor
+                : const Color.fromARGB(165, 58, 58, 58),
+          ),
       child: Center(
-        child: Transform.scale(
-          alignment: Alignment.center,
-          scaleX: -1,
-          child: const Icon(Icons.filter_none, color: Colors.white, size: 19),
-        ),
+        child: (widget.multiSelectIconBtnStyle == null
+                ? widget.multiSelectIcon
+                : widget.multiSelectIcon?.copyWith(
+                    color: multiSelectionModeValue
+                        ? widget.appTheme.accentColor
+                        : widget.multiSelectIcon?.color,
+                  )) ??
+            Transform.scale(
+              alignment: Alignment.center,
+              scaleX: -1,
+              child: const Icon(
+                Icons.filter_none,
+                color: Colors.white,
+                size: 19,
+              ),
+            ),
       ),
     );
   }
@@ -306,15 +334,18 @@ class _CropImageViewState extends State<CropImageView> {
   Widget _cameraBtn(bool multiSelectionModeValue) {
     return ElevatedButton(
       onPressed: widget.moveToCamera,
-      style: ElevatedButton.styleFrom(
-        elevation: 0,
-        padding: EdgeInsets.zero,
-        minimumSize: const Size.fromRadius(19),
-        shape: const CircleBorder(),
-        backgroundColor: const Color.fromARGB(165, 58, 58, 58),
-      ),
-      child: const Center(
-        child: Icon(Icons.photo_camera_outlined, color: Colors.white, size: 20),
+      style: widget.cameraBtnStyle ??
+          ElevatedButton.styleFrom(
+            elevation: 0,
+            padding: EdgeInsets.zero,
+            minimumSize: const Size.fromRadius(19),
+            shape: const CircleBorder(),
+            backgroundColor: const Color.fromARGB(165, 58, 58, 58),
+          ),
+      child: Center(
+        child: widget.cameraIcon ??
+            const Icon(Icons.photo_camera_outlined,
+                color: Colors.white, size: 20),
       ),
     );
   }

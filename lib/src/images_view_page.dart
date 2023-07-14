@@ -26,7 +26,15 @@ class ImagesViewPage extends StatefulWidget {
   final AsyncValueSetter<SelectedImagesDetails>? callbackFunction;
   final VoidCallback? moveToCamera;
 
+  final ButtonStyle? multiSelectIconBtnStyle;
+  final ButtonStyle? cameraBtnStyle;
+  final Icon? multiSelectIcon;
+  final Icon? cameraIcon;
+
   final bool sortPathsByModifiedDate;
+
+  final bool enableCamera;
+  final bool enableVideo;
 
   /// To avoid lag when you interacting with image when it expanded
   final AppTheme appTheme;
@@ -52,9 +60,15 @@ class ImagesViewPage extends StatefulWidget {
     required this.gridDelegate,
     required this.maximumSelection,
     required this.mediaListCurrentAlbum,
+    required this.enableCamera,
+    required this.enableVideo,
     this.callbackFunction,
     this.moveToCamera,
     this.sortPathsByModifiedDate = false,
+    this.multiSelectIconBtnStyle,
+    this.cameraBtnStyle,
+    this.multiSelectIcon,
+    this.cameraIcon,
   }) : super(key: key);
 
   @override
@@ -888,6 +902,13 @@ class _ImagesViewPageState extends State<ImagesViewPage>
                           assetPathSelected: _currentPath,
                           onAssetPathChanged: _swithcPath,
                           moveToCamera: widget.moveToCamera,
+                          multiSelectIconBtnStyle:
+                              widget.multiSelectIconBtnStyle,
+                          cameraBtnStyle: widget.cameraBtnStyle,
+                          multiSelectIcon: widget.multiSelectIcon,
+                          cameraIcon: widget.cameraIcon,
+                          enableCamera: widget.enableCamera,
+                          enableVideo: widget.enableVideo,
                         ),
                       ],
                     ),

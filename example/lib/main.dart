@@ -194,6 +194,30 @@ class _MyHomePageState extends State<MyHomePage> {
             cropImage: true,
             showImagePreview: true,
             appThemeCameraInvert: true,
+            multiSelectIconBtnStyle: ElevatedButton.styleFrom(
+              elevation: 0,
+              padding: EdgeInsets.zero,
+              minimumSize: const Size.fromRadius(19),
+              shape: const CircleBorder(),
+              backgroundColor: Colors.transparent,
+            ),
+            multiSelectIcon: const Icon(
+              Icons.photo_library,
+              color: Colors.black54,
+              size: 24,
+            ),
+            cameraBtnStyle: ElevatedButton.styleFrom(
+              elevation: 0,
+              padding: EdgeInsets.zero,
+              minimumSize: const Size.fromRadius(19),
+              shape: const CircleBorder(),
+              backgroundColor: Colors.transparent,
+            ),
+            cameraIcon: const Icon(
+              Icons.photo_camera_sharp,
+              color: Colors.black54,
+              size: 24,
+            ),
           ),
         );
         if (details != null) await displayDetails(details);

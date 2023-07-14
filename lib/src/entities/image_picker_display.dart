@@ -25,8 +25,20 @@ class GalleryDisplaySettings {
   /// Defaults to and cannot be lower than 1 second.
   final Duration minimumRecordingDuration;
 
-  //TODO: document
+  /// If [appThemeCameraInvert] true [AppTheme] colors invert on camera.
   final bool appThemeCameraInvert;
+
+  /// [ButtonStyle] of multiSelectIconBtn
+  final ButtonStyle? multiSelectIconBtnStyle;
+
+  /// [ButtonStyle] of cameraBtn
+  final ButtonStyle? cameraBtnStyle;
+
+  /// [Icon] of multiSelectIconBtn
+  final Icon? multiSelectIcon;
+
+  /// [Icon] of cameraBtn
+  final Icon? cameraIcon;
 
   GalleryDisplaySettings({
     this.appTheme,
@@ -40,5 +52,9 @@ class GalleryDisplaySettings {
     this.maximumSelection = 10,
     this.maximumRecordingDuration = const Duration(seconds: 15),
     this.minimumRecordingDuration = const Duration(seconds: 1),
+    this.multiSelectIconBtnStyle,
+    this.cameraBtnStyle,
+    this.multiSelectIcon,
+    this.cameraIcon,
   });
 }

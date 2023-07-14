@@ -42,6 +42,10 @@ class CustomImagePickerState extends State<CustomImagePicker>
   late TabsTexts tapsNames;
   late bool showImagePreview;
   late int maximumSelection;
+  late ButtonStyle? multiSelectIconBtnStyle;
+  late ButtonStyle? cameraBtnStyle;
+  late Icon? multiSelectIcon;
+  late Icon? cameraIcon;
   final isImagesReady = ValueNotifier(false);
   final currentPage = ValueNotifier(0);
   final lastPage = ValueNotifier(0);
@@ -80,6 +84,11 @@ class CustomImagePickerState extends State<CustomImagePicker>
     maximumSelection = imagePickerDisplay.maximumSelection;
     limitingText = tapsNames.limitingText ??
         "The limit is $maximumSelection photos or videos.";
+
+    multiSelectIconBtnStyle = imagePickerDisplay.multiSelectIconBtnStyle;
+    cameraBtnStyle = imagePickerDisplay.cameraBtnStyle;
+    multiSelectIcon = imagePickerDisplay.multiSelectIcon;
+    cameraIcon = imagePickerDisplay.cameraIcon;
 
     showImagePreview = cropImage || imagePickerDisplay.showImagePreview;
     gridDelegate = imagePickerDisplay.gridDelegate;
@@ -345,6 +354,12 @@ class CustomImagePickerState extends State<CustomImagePicker>
       maximumSelection: maximumSelection,
       moveToCamera: moveToCamera,
       mediaListCurrentAlbum: mediaListCurrentAlbum,
+      multiSelectIconBtnStyle: multiSelectIconBtnStyle,
+      cameraBtnStyle: cameraBtnStyle,
+      multiSelectIcon: multiSelectIcon,
+      cameraIcon: cameraIcon,
+      enableCamera: enableCamera,
+      enableVideo: enableVideo,
     );
   }
 
