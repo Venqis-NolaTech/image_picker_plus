@@ -87,6 +87,8 @@ class _ImagesViewPageState extends State<ImagesViewPage>
   ValueNotifier<File?> selectedImage = ValueNotifier(null);
   ValueNotifier<List<int>> indexOfSelectedImages = ValueNotifier([]);
 
+  ValueNotifier<bool> showDoneLoading = ValueNotifier(false);
+
   ScrollController scrollController = ScrollController();
 
   final expandImage = ValueNotifier(false);
@@ -362,7 +364,14 @@ class _ImagesViewPageState extends State<ImagesViewPage>
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
           )
-        : buildGridView();
+        : Stack(
+            children: [
+              Positioned.fill(
+                child: buildGridView(),
+              ),
+              doneLoading(),
+            ],
+          );
   }
 
   ValueListenableBuilder<bool> buildGridView() {
@@ -505,6 +514,8 @@ class _ImagesViewPageState extends State<ImagesViewPage>
         icon: Icon(Icons.arrow_forward_rounded,
             color: widget.appTheme.accentColor, size: 30),
         onPressed: () async {
+          showDoneLoading.value = true;
+
           double aspect = expandImage.value ? 6 / 8 : 1.0;
           if (widget.multiSelectionMode.value && widget.multiSelection) {
             if (areaOfCropsKeys.value.length !=
@@ -548,6 +559,7 @@ class _ImagesViewPageState extends State<ImagesViewPage>
               if (widget.callbackFunction != null) {
                 await widget.callbackFunction!(details);
               } else {
+                showDoneLoading.value = false;
                 Navigator.of(context).maybePop(details);
               }
             }
@@ -578,11 +590,30 @@ class _ImagesViewPageState extends State<ImagesViewPage>
             if (widget.callbackFunction != null) {
               await widget.callbackFunction!(details);
             } else {
+              //TODO: hide loading
               Navigator.of(context).maybePop(details);
             }
           }
         },
       ),
+    );
+  }
+
+  Widget doneLoading() {
+    return ValueListenableBuilder<bool>(
+      valueListenable: showDoneLoading,
+      builder: (context, value, child) {
+        return Visibility(
+          visible: value,
+          child: Container(
+            color: Colors.white.withOpacity(0.5),
+            alignment: Alignment.center,
+            child: CircularProgressIndicator(
+                valueColor:
+                    AlwaysStoppedAnimation<Color>(widget.appTheme.accentColor)),
+          ),
+        );
+      },
     );
   }
 

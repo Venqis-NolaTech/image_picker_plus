@@ -211,7 +211,9 @@ class _CropImageViewState extends State<CropImageView> {
                   Flexible(
                     child: ScaleText(
                       name,
-                      style: const TextStyle(fontSize: 17),
+                      style: const TextStyle(
+                        fontSize: 17,
+                      ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -227,8 +229,7 @@ class _CropImageViewState extends State<CropImageView> {
 
                       return ScaleText(
                         '($semanticsCount)',
-                        style: TextStyle(
-                          color: widget.appTheme.primaryColor,
+                        style: const TextStyle(
                           fontSize: 17,
                         ),
                         maxLines: 1,
