@@ -193,10 +193,12 @@ class _CropImageViewState extends State<CropImageView> {
   }
 
   Widget _pathsDropDownButton() {
+    final items = widget.assetPaths.where((e) => (e.assetCount ?? 0) > 0);
+
     return DropdownButtonHideUnderline(
       child: DropdownButton<PathWrapper<AssetPathEntity>>(
         value: widget.assetPathSelected,
-        items: widget.assetPaths.map(
+        items: items.map(
           (path) {
             final wrapper = path.path;
 
