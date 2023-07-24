@@ -208,20 +208,27 @@ class _ImagesViewPageState extends State<ImagesViewPage>
       } else if (noImages) {
         noImages = false;
       }
-      for (final AssetPathEntity pathEntity in albums) {
-        final int index = _paths.indexWhere(
-          (PathWrapper<AssetPathEntity> p) => p.path.id == pathEntity.id,
-        );
-        final PathWrapper<AssetPathEntity> wrapper =
-            PathWrapper<AssetPathEntity>(
-          path: pathEntity,
-        );
-        if (index == -1) {
-          _paths.add(wrapper);
-        } else {
-          _paths[index] = wrapper;
+
+      await Future.forEach<AssetPathEntity>(albums, (pathEntity) async {
+        final assetCount = await pathEntity.assetCountAsync;
+
+        if (assetCount > 0) {
+          final int index = _paths.indexWhere(
+            (PathWrapper<AssetPathEntity> p) => p.path.id == pathEntity.id,
+          );
+
+          final PathWrapper<AssetPathEntity> wrapper =
+              PathWrapper<AssetPathEntity>(
+            path: pathEntity,
+          );
+
+          if (index == -1) {
+            _paths.add(wrapper);
+          } else {
+            _paths[index] = wrapper;
+          }
         }
-      }
+      });
 
       // Set first path entity as current path entity.
       if (_paths.isNotEmpty) {
