@@ -366,9 +366,24 @@ class _ImagesViewPageState extends State<ImagesViewPage>
 
     return noImages
         ? Center(
-            child: Text(
-              widget.tabsTexts.noImagesFounded,
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  widget.tabsTexts.noImagesFounded,
+                  style: const TextStyle(
+                      fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                if (widget.showImagePreview &&
+                    (widget.enableCamera || widget.enableVideo)) ...[
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: widget.moveToCamera,
+                    child: Text(widget.tabsTexts.cameraText),
+                  )
+                ]
+              ],
             ),
           )
         : Stack(

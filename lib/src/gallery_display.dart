@@ -138,7 +138,20 @@ class CustomImagePickerState extends State<CustomImagePicker>
 
   @override
   Widget build(BuildContext context) {
-    return tabController();
+    return WillPopScope(
+      onWillPop: () async {
+        if (widget.source == ImageSource.both) {
+          if (selectedPage.value != SelectedPage.left) {
+            moveToGallery();
+
+            return false;
+          }
+          return true;
+        }
+        return true;
+      },
+      child: tabController(),
+    );
   }
 
   Widget tapBarMessage(bool isThatDeleteText) {
@@ -278,17 +291,8 @@ class CustomImagePickerState extends State<CustomImagePicker>
                     if (multiSelectionModeValue) {
                       return clearSelectedImages();
                     }
-
-                    // else {
-                    //   return buildTabBar();
-                    // }
                   }
-                  //  else {
-                  //   return Visibility(
-                  //     visible: !multiSelectionModeValue,
-                  //     child: buildTabBar(),
-                  //   );
-                  // }
+
                   return const SizedBox.shrink();
                 } else {
                   return multiSelectionModeValue
@@ -320,7 +324,7 @@ class CustomImagePickerState extends State<CustomImagePicker>
         clearVideoRecord: clearVideoRecord,
         redDeleteText: redDeleteText,
         moveToVideoScreen: moveToVideo,
-        enableMoveToGallery: widget.source == ImageSource.both,
+        bothSource: widget.source == ImageSource.both,
         moveToGalleryScreen: moveToGallery,
         selectedVideo: selectedVideoValue,
         mediaListCurrentAlbum: mediaListCurrentAlbum.value,
@@ -362,55 +366,6 @@ class CustomImagePickerState extends State<CustomImagePicker>
       enableVideo: enableVideo,
     );
   }
-
-  // ValueListenableBuilder<bool> buildTabBar() {
-  //   return ValueListenableBuilder(
-  //     valueListenable: showDeleteText,
-  //     builder: (context, bool showDeleteTextValue, child) => AnimatedSwitcher(
-  //       duration: const Duration(milliseconds: 200),
-  //       switchInCurve: Curves.easeInOutQuart,
-  //       child: widget.source == ImageSource.both ||
-  //               widget.pickerSource == PickerSource.both
-  //           ? (showDeleteTextValue ? tapBarMessage(true) : tabBar())
-  //           : const SizedBox(),
-  //     ),
-  //   );
-  // }
-
-  // Widget tabBar() {
-  //   double widthOfScreen = MediaQuery.of(context).size.width;
-  //   int divideNumber = showAllTabs ? 3 : 2;
-  //   double widthOfTab = widthOfScreen / divideNumber;
-  //   return ValueListenableBuilder(
-  //     valueListenable: selectedPage,
-  //     builder: (context, SelectedPage selectedPageValue, child) {
-  //       Color photoColor =
-  //           selectedPageValue == SelectedPage.center ? blackColor : Colors.grey;
-  //       return Stack(
-  //         alignment: Alignment.bottomLeft,
-  //         children: [
-  //           Row(
-  //             children: [
-  //               if (noGallery) galleryTabBar(widthOfTab, selectedPageValue),
-  //               if (enableCamera) photoTabBar(widthOfTab, photoColor),
-  //               if (enableVideo) videoTabBar(widthOfTab),
-  //             ],
-  //           ),
-  //           AnimatedPositioned(
-  //             duration: const Duration(milliseconds: 500),
-  //             curve: Curves.easeInOutQuad,
-  //             right: selectedPageValue == SelectedPage.center
-  //                 ? widthOfTab
-  //                 : (selectedPageValue == SelectedPage.right
-  //                     ? 0
-  //                     : (divideNumber == 2 ? widthOfTab : widthOfScreen / 1.5)),
-  //             child: Container(height: 1, width: widthOfTab, color: blackColor),
-  //           ),
-  //         ],
-  //       );
-  //     },
-  //   );
-  // }
 
   GestureDetector galleryTabBar(
       double widthOfTab, SelectedPage selectedPageValue) {

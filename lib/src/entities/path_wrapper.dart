@@ -2,8 +2,6 @@
 // Use of this source code is governed by an Apache license that can be found
 // in the LICENSE file.
 
-import 'dart:typed_data';
-
 import 'package:flutter/foundation.dart';
 
 /// A wrapper that holds [Path] with it's nullable (late initialize) fields.

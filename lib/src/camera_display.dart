@@ -22,7 +22,7 @@ class CustomCameraDisplay extends StatefulWidget {
   final TabsTexts tapsNames;
   final bool enableCamera;
   final bool enableVideo;
-  final bool enableMoveToGallery;
+  final bool bothSource;
   final VoidCallback moveToVideoScreen;
   final VoidCallback? moveToGalleryScreen;
   final ValueNotifier<File?> selectedCameraImage;
@@ -42,7 +42,7 @@ class CustomCameraDisplay extends StatefulWidget {
     required this.mediaListCurrentAlbum,
     required this.enableCamera,
     required this.enableVideo,
-    required this.enableMoveToGallery,
+    required this.bothSource,
     required this.redDeleteText,
     required this.selectedVideo,
     required this.replacingTabBar,
@@ -256,7 +256,7 @@ class CustomCameraDisplayState extends State<CustomCameraDisplay> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                widget.enableMoveToGallery
+                widget.bothSource
                     ? buildGallery()
                     : Container(
                         padding: const EdgeInsets.only(left: 32),
@@ -394,7 +394,9 @@ class CustomCameraDisplayState extends State<CustomCameraDisplay> {
       leading: IconButton(
         icon: Icon(Icons.clear_rounded, color: blackColor, size: 30),
         onPressed: () {
-          Navigator.of(context).maybePop(null);
+          widget.bothSource
+              ? widget.moveToGalleryScreen?.call()
+              : Navigator.of(context).maybePop(null);
         },
       ),
       actions: <Widget>[

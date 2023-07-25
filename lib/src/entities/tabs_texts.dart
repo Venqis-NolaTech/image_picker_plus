@@ -3,6 +3,7 @@ class TabsTexts {
   final String photoText;
   final String galleryText;
   final String deletingText;
+  final String cameraText;
 
   /// [limitingText] if the maximumSelection = 10 it will be "The limit is 10 photos or videos."
   String? limitingText;
@@ -19,6 +20,7 @@ class TabsTexts {
     this.galleryText = "GALLERY",
     this.deletingText = "DELETE",
     this.limitingText,
+    this.cameraText = "use Camera",
     this.notFoundingCameraText = "No secondary camera found",
     this.holdButtonText = "Press and hold to record",
     this.noImagesFounded = "There is no images",
