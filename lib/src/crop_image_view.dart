@@ -200,10 +200,10 @@ class _CropImageViewState extends State<CropImageView> {
         value: widget.assetPathSelected,
         items: items.map(
           (path) {
+            final name = path.name;
             final wrapper = path.path;
 
             final isSelected = widget.assetPathSelected?.path == wrapper;
-            final name = wrapper.name;
 
             return DropdownMenuItem<PathWrapper<AssetPathEntity>>(
               value: path,
@@ -251,8 +251,7 @@ class _CropImageViewState extends State<CropImageView> {
         ).toList(),
         selectedItemBuilder: (context) {
           return widget.assetPaths.map((path) {
-            final wrapper = path.path;
-            final name = wrapper.name;
+            final name = path.name;
 
             return Container(
               alignment: Alignment.center,

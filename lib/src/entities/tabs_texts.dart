@@ -20,7 +20,7 @@ class TabsTexts {
     this.galleryText = "GALLERY",
     this.deletingText = "DELETE",
     this.limitingText,
-    this.cameraText = "use Camera",
+    this.cameraText = "Use Camera",
     this.notFoundingCameraText = "No secondary camera found",
     this.holdButtonText = "Press and hold to record",
     this.noImagesFounded = "There is no images",

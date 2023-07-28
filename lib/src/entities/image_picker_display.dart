@@ -1,11 +1,13 @@
 import 'package:flutter/foundation.dart';
 import 'package:image_picker_plus/image_picker_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker_plus/src/entities/album_texts.dart';
 
 /// [GalleryDisplaySettings] When you make ImageSource from the camera these settings will be disabled because they belong to the gallery.
 class GalleryDisplaySettings {
   AppTheme? appTheme;
   TabsTexts? tabsTexts;
+  AlbumTexts? albumTexts;
   SliverGridDelegateWithFixedCrossAxisCount gridDelegate;
   bool showImagePreview;
   int maximumSelection;
@@ -43,6 +45,7 @@ class GalleryDisplaySettings {
   GalleryDisplaySettings({
     this.appTheme,
     this.tabsTexts,
+    this.albumTexts,
     this.callbackFunction,
     this.gridDelegate = const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 4, crossAxisSpacing: 1.7, mainAxisSpacing: 1.5),
@@ -50,7 +53,7 @@ class GalleryDisplaySettings {
     this.cropImage = false,
     this.appThemeCameraInvert = false,
     this.maximumSelection = 10,
-    this.maximumRecordingDuration = const Duration(seconds: 15),
+    this.maximumRecordingDuration = const Duration(seconds: 30),
     this.minimumRecordingDuration = const Duration(seconds: 1),
     this.multiSelectIconBtnStyle,
     this.cameraBtnStyle,

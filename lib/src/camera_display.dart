@@ -418,6 +418,7 @@ class CustomCameraDisplayState extends State<CustomCameraDisplay> {
       onPressed: () async {
         if (selectedVideo != null) {
           Uint8List byte = await selectedVideo.readAsBytes();
+
           SelectedByte selectedByte = SelectedByte(
             isThatImage: false,
             selectedFile: selectedVideo,

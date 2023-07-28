@@ -14,6 +14,7 @@ import 'package:flutter/foundation.dart';
 class PathWrapper<Path> {
   const PathWrapper({
     required this.path,
+    required this.name,
     this.assetCount,
     this.thumbnailData,
   });
@@ -39,6 +40,11 @@ class PathWrapper<Path> {
   ///    https://pub.dev/documentation/photo_manager/latest/photo_manager/AssetEntity/thumbnailData.html
   final Uint8List? thumbnailData;
 
+  /// The localization name of the album.
+  ///  * Android: Path name.
+  ///  * iOS/macOS: Album/Folder name.
+  final String name;
+
   /// Creates a modified copy of the object.
   ///
   /// Explicitly specified fields get the specified value, all other fields get
@@ -49,6 +55,7 @@ class PathWrapper<Path> {
   }) {
     return PathWrapper<Path>(
       path: path,
+      name: name,
       assetCount: assetCount ?? this.assetCount,
       thumbnailData: thumbnailData ?? this.thumbnailData,
     );

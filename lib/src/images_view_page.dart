@@ -18,6 +18,7 @@ class ImagesViewPage extends StatefulWidget {
   final ValueNotifier<List<File>> multiSelectedImages;
   final ValueNotifier<bool> multiSelectionMode;
   final TabsTexts tabsTexts;
+  final AlbumTexts albumTexts;
   final bool cropImage;
   final bool multiSelection;
   final bool showInternalVideos;
@@ -50,6 +51,7 @@ class ImagesViewPage extends StatefulWidget {
     required this.clearMultiImages,
     required this.appTheme,
     required this.tabsTexts,
+    required this.albumTexts,
     required this.whiteColor,
     required this.cropImage,
     required this.multiSelection,
@@ -220,6 +222,7 @@ class _ImagesViewPageState extends State<ImagesViewPage>
           final PathWrapper<AssetPathEntity> wrapper =
               PathWrapper<AssetPathEntity>(
             path: pathEntity,
+            name: _getAssetsLocalizationName(pathEntity.name),
           );
 
           if (index == -1) {
@@ -237,6 +240,32 @@ class _ImagesViewPageState extends State<ImagesViewPage>
     } else {
       await PhotoManager.requestPermissionExtend();
       PhotoManager.openSetting();
+    }
+  }
+
+  String _getAssetsLocalizationName(String name) {
+    final albumTexts = widget.albumTexts;
+    final album = AlbumExt.find(name);
+
+    switch (album) {
+      case Album.videos:
+        return albumTexts.videos;
+      case Album.pictures:
+        return albumTexts.pictures;
+      case Album.cameras:
+        return albumTexts.cameras;
+      case Album.movies:
+        return albumTexts.movies;
+      case Album.screenshots:
+        return albumTexts.screenshots;
+      case Album.download:
+        return albumTexts.download;
+      case Album.restored:
+        return albumTexts.restored;
+      case Album.recent:
+        return albumTexts.recent;
+      default:
+        return name;
     }
   }
 

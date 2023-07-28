@@ -40,6 +40,7 @@ class CustomImagePickerState extends State<CustomImagePicker>
   late bool cropImage;
   late AppTheme appTheme;
   late TabsTexts tapsNames;
+  late AlbumTexts albumNames;
   late bool showImagePreview;
   late int maximumSelection;
   late ButtonStyle? multiSelectIconBtnStyle;
@@ -79,6 +80,7 @@ class CustomImagePickerState extends State<CustomImagePicker>
     imagePickerDisplay = widget.galleryDisplaySettings;
     appTheme = imagePickerDisplay.appTheme ?? AppTheme();
     tapsNames = imagePickerDisplay.tabsTexts ?? TabsTexts();
+    albumNames = imagePickerDisplay.albumTexts ?? AlbumTexts();
     callbackFunction = imagePickerDisplay.callbackFunction;
     cropImage = imagePickerDisplay.cropImage;
     maximumSelection = imagePickerDisplay.maximumSelection;
@@ -141,7 +143,9 @@ class CustomImagePickerState extends State<CustomImagePicker>
     return WillPopScope(
       onWillPop: () async {
         if (widget.source == ImageSource.both) {
-          if (selectedPage.value != SelectedPage.left) {
+          if (selectedPage.value != SelectedPage.left &&
+              (selectedCameraImage.value == null &&
+                  selectedCameraVideo.value == null)) {
             moveToGallery();
 
             return false;
@@ -349,6 +353,7 @@ class CustomImagePickerState extends State<CustomImagePicker>
       blackColor: blackColor,
       showImagePreview: showImagePreview,
       tabsTexts: tapsNames,
+      albumTexts: albumNames,
       multiSelectedImages: multiSelectedImage,
       whiteColor: whiteColor,
       cropImage: cropImage,
