@@ -739,7 +739,7 @@ class _ImagesViewPageState extends State<ImagesViewPage>
   Container blurContainer() {
     return Container(
       width: double.infinity,
-      color: const Color.fromARGB(184, 234, 234, 234),
+      color: widget.appTheme.focusColor.withOpacity(0.6),
       height: double.maxFinite,
     );
   }
