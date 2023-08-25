@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:image_picker_plus/image_picker_plus.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker_plus/src/entities/album_texts.dart';
 
 /// [GalleryDisplaySettings] When you make ImageSource from the camera these settings will be disabled because they belong to the gallery.
 class GalleryDisplaySettings {
@@ -42,6 +41,12 @@ class GalleryDisplaySettings {
   /// [Icon] of cameraBtn
   final Icon? cameraIcon;
 
+  /// [int] size of cache image
+  final int? cacheSizeImage;
+
+  /// [int] size of page image
+  final int pageImageSize;
+
   GalleryDisplaySettings({
     this.appTheme,
     this.tabsTexts,
@@ -59,5 +64,7 @@ class GalleryDisplaySettings {
     this.cameraBtnStyle,
     this.multiSelectIcon,
     this.cameraIcon,
+    this.cacheSizeImage,
+    this.pageImageSize = 60,
   });
 }

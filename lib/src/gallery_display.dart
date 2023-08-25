@@ -47,6 +47,8 @@ class CustomImagePickerState extends State<CustomImagePicker>
   late ButtonStyle? cameraBtnStyle;
   late Icon? multiSelectIcon;
   late Icon? cameraIcon;
+  late int? cacheSizeImage;
+  late int pageImageSize;
   final isImagesReady = ValueNotifier(false);
   final currentPage = ValueNotifier(0);
   final lastPage = ValueNotifier(0);
@@ -91,6 +93,9 @@ class CustomImagePickerState extends State<CustomImagePicker>
     cameraBtnStyle = imagePickerDisplay.cameraBtnStyle;
     multiSelectIcon = imagePickerDisplay.multiSelectIcon;
     cameraIcon = imagePickerDisplay.cameraIcon;
+
+    cacheSizeImage = imagePickerDisplay.cacheSizeImage;
+    pageImageSize = imagePickerDisplay.pageImageSize;
 
     showImagePreview = cropImage || imagePickerDisplay.showImagePreview;
     gridDelegate = imagePickerDisplay.gridDelegate;
@@ -369,6 +374,8 @@ class CustomImagePickerState extends State<CustomImagePicker>
       cameraIcon: cameraIcon,
       enableCamera: enableCamera,
       enableVideo: enableVideo,
+      cacheSizeImage: cacheSizeImage,
+      pageImageSize: pageImageSize,
     );
   }
 

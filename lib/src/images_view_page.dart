@@ -37,6 +37,9 @@ class ImagesViewPage extends StatefulWidget {
   final bool enableCamera;
   final bool enableVideo;
 
+  final int? cacheSizeImage;
+  final int pageImageSize;
+
   /// To avoid lag when you interacting with image when it expanded
   final AppTheme appTheme;
   final VoidCallback clearMultiImages;
@@ -64,6 +67,7 @@ class ImagesViewPage extends StatefulWidget {
     required this.mediaListCurrentAlbum,
     required this.enableCamera,
     required this.enableVideo,
+    required this.pageImageSize,
     this.callbackFunction,
     this.moveToCamera,
     this.sortPathsByModifiedDate = false,
@@ -71,6 +75,7 @@ class ImagesViewPage extends StatefulWidget {
     this.cameraBtnStyle,
     this.multiSelectIcon,
     this.cameraIcon,
+    this.cacheSizeImage,
   }) : super(key: key);
 
   @override
@@ -322,8 +327,10 @@ class _ImagesViewPageState extends State<ImagesViewPage>
     lastPage.value = currentPageValue;
     path ??= currentPath!.path;
 
-    List<AssetEntity> media =
-        await path.getAssetListPaged(page: currentPageValue, size: 60);
+    List<AssetEntity> media = await path.getAssetListPaged(
+      page: currentPageValue,
+      size: widget.pageImageSize,
+    );
     List<FutureBuilder<Uint8List?>> temp = [];
     List<File?> imageTemp = [];
 
@@ -362,7 +369,10 @@ class _ImagesViewPageState extends State<ImagesViewPage>
                 children: <Widget>[
                   Positioned.fill(
                     child: MemoryImageDisplay(
-                        imageBytes: image, appTheme: widget.appTheme),
+                      imageBytes: image,
+                      appTheme: widget.appTheme,
+                      cacheSize: widget.cacheSizeImage,
+                    ),
                   ),
                   if (media[i].type == AssetType.video)
                     const Align(

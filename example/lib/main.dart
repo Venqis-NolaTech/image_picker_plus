@@ -78,6 +78,8 @@ class _MyHomePageState extends State<MyHomePage> {
           multiVideos: true,
           galleryDisplaySettings: GalleryDisplaySettings(
             gridDelegate: _sliverGrid2Delegate(),
+            cacheSizeImage: 128,
+            pageImageSize: 20,
           ),
         );
         if (details != null) await displayDetails(details);
@@ -101,6 +103,8 @@ class _MyHomePageState extends State<MyHomePage> {
             appTheme:
                 AppTheme(focusColor: Colors.white, primaryColor: Colors.black),
             gridDelegate: _sliverGrid3Delegate(),
+            cacheSizeImage: 128,
+            pageImageSize: 20,
           ),
         );
         if (details != null) await displayDetails(details);
@@ -124,6 +128,8 @@ class _MyHomePageState extends State<MyHomePage> {
                 AppTheme(focusColor: Colors.white, primaryColor: Colors.black),
             cropImage: true,
             showImagePreview: true,
+            cacheSizeImage: 128,
+            pageImageSize: 20,
           ),
         );
         if (details != null) await displayDetails(details);
@@ -144,6 +150,8 @@ class _MyHomePageState extends State<MyHomePage> {
           galleryDisplaySettings: GalleryDisplaySettings(
             cropImage: true,
             showImagePreview: true,
+            cacheSizeImage: 128,
+            pageImageSize: 20,
           ),
         );
         if (details != null) await displayDetails(details);
@@ -194,6 +202,8 @@ class _MyHomePageState extends State<MyHomePage> {
             cropImage: true,
             showImagePreview: true,
             appThemeCameraInvert: true,
+            cacheSizeImage: 128,
+            pageImageSize: 20,
             multiSelectIconBtnStyle: ElevatedButton.styleFrom(
               elevation: 0,
               padding: EdgeInsets.zero,
@@ -234,6 +244,8 @@ class _MyHomePageState extends State<MyHomePage> {
           source: ImageSource.camera,
           galleryDisplaySettings: GalleryDisplaySettings(
             cropImage: true,
+            cacheSizeImage: 128,
+            pageImageSize: 20,
           ),
         );
         if (details != null) await displayDetails(details);
@@ -249,6 +261,8 @@ class _MyHomePageState extends State<MyHomePage> {
         SelectedImagesDetails? details = await picker.pickVideo(
           source: ImageSource.camera,
           galleryDisplaySettings: GalleryDisplaySettings(
+            cacheSizeImage: 128,
+            pageImageSize: 20,
             appTheme:
                 AppTheme(focusColor: Colors.white, primaryColor: Colors.black),
           ),

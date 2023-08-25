@@ -5,10 +5,14 @@ import 'package:flutter/material.dart';
 class MemoryImageDisplay extends StatefulWidget {
   final Uint8List imageBytes;
   final AppTheme appTheme;
+  final int? cacheSize;
 
-  const MemoryImageDisplay(
-      {Key? key, required this.imageBytes, required this.appTheme})
-      : super(key: key);
+  const MemoryImageDisplay({
+    Key? key,
+    required this.imageBytes,
+    this.cacheSize,
+    required this.appTheme,
+  }) : super(key: key);
 
   @override
   State<MemoryImageDisplay> createState() => _NetworkImageDisplayState();
@@ -35,6 +39,7 @@ class _NetworkImageDisplayState extends State<MemoryImageDisplay> {
         errorBuilder: (context, url, error) => buildError(),
         fit: BoxFit.cover,
         width: double.infinity,
+        cacheWidth: widget.cacheSize,
       ),
     );
   }
