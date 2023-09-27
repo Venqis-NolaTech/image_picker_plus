@@ -10,7 +10,7 @@ class GalleryDisplaySettings {
   SliverGridDelegateWithFixedCrossAxisCount gridDelegate;
   bool showImagePreview;
   int maximumSelection;
-  final AsyncValueSetter<SelectedImagesDetails>? callbackFunction;
+  final AsyncValueSetter<dynamic>? callbackFunction;
 
   /// If [cropImage] true [showImagePreview] will be true
   /// Right now this package not support crop video
@@ -28,6 +28,9 @@ class GalleryDisplaySettings {
 
   /// If [appThemeCameraInvert] true [AppTheme] colors invert on camera.
   final bool appThemeCameraInvert;
+
+  /// If [bytesArrayExport] true export file will be [Uint8List].
+  final bool byteArrayExport;
 
   /// [ButtonStyle] of multiSelectIconBtn
   final ButtonStyle? multiSelectIconBtnStyle;
@@ -57,6 +60,7 @@ class GalleryDisplaySettings {
     this.showImagePreview = false,
     this.cropImage = false,
     this.appThemeCameraInvert = false,
+    this.byteArrayExport = true,
     this.maximumSelection = 10,
     this.maximumRecordingDuration = const Duration(seconds: 30),
     this.minimumRecordingDuration = const Duration(seconds: 1),

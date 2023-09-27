@@ -24,7 +24,7 @@ class ImagesViewPage extends StatefulWidget {
   final bool showInternalVideos;
   final bool showInternalImages;
   final int maximumSelection;
-  final AsyncValueSetter<SelectedImagesDetails>? callbackFunction;
+  final AsyncValueSetter<dynamic>? callbackFunction;
   final VoidCallback? moveToCamera;
 
   final ButtonStyle? multiSelectIconBtnStyle;
@@ -39,6 +39,8 @@ class ImagesViewPage extends StatefulWidget {
 
   final int? cacheSizeImage;
   final int pageImageSize;
+
+  final bool bytesArrayExport;
 
   /// To avoid lag when you interacting with image when it expanded
   final AppTheme appTheme;
@@ -76,6 +78,7 @@ class ImagesViewPage extends StatefulWidget {
     this.multiSelectIcon,
     this.cameraIcon,
     this.cacheSizeImage,
+    this.bytesArrayExport = false,
   }) : super(key: key);
 
   @override
@@ -572,9 +575,43 @@ class _ImagesViewPageState extends State<ImagesViewPage>
       valueListenable: indexOfSelectedImages,
       builder: (context, List<int> indexOfSelectedImagesValue, child) =>
           IconButton(
-        icon: Icon(Icons.arrow_forward_rounded,
-            color: widget.appTheme.accentColor, size: 30),
+        icon: Icon(
+          Icons.arrow_forward_rounded,
+          color: widget.appTheme.accentColor,
+          size: 30,
+        ),
         onPressed: () async {
+          Future<List<dynamic>> parseFile() async {
+            final files = <dynamic>[];
+
+            for (int i = 0; i < widget.multiSelectedImages.value.length; i++) {
+              File currentImage = widget.multiSelectedImages.value[i];
+              String path = currentImage.path;
+
+              bool isThatVideo = path.contains("mp4", path.length - 5);
+
+              File? croppedImage = !isThatVideo && widget.cropImage
+                  ? await cropImage(currentImage, indexOfCropImage: i)
+                  : null;
+
+              File image = croppedImage ?? currentImage;
+
+              if (widget.bytesArrayExport) {
+                Uint8List byte = await image.readAsBytes();
+                SelectedByte img = SelectedByte(
+                  isThatImage: !isThatVideo,
+                  selectedFile: image,
+                  selectedByte: byte,
+                );
+                files.add(img);
+              } else {
+                files.add(image);
+              }
+            }
+
+            return files;
+          }
+
           showDoneLoading.value = true;
 
           double aspect = expandImage.value ? 6 / 8 : 1.0;
@@ -592,36 +629,36 @@ class _ImagesViewPageState extends State<ImagesViewPage>
               }
             }
 
-            List<SelectedByte> selectedBytes = [];
-            for (int i = 0; i < widget.multiSelectedImages.value.length; i++) {
-              File currentImage = widget.multiSelectedImages.value[i];
-              String path = currentImage.path;
-              bool isThatVideo = path.contains("mp4", path.length - 5);
-              File? croppedImage = !isThatVideo && widget.cropImage
-                  ? await cropImage(currentImage, indexOfCropImage: i)
-                  : null;
-              File image = croppedImage ?? currentImage;
-              Uint8List byte = await image.readAsBytes();
-              SelectedByte img = SelectedByte(
-                isThatImage: !isThatVideo,
-                selectedFile: image,
-                selectedByte: byte,
-              );
-              selectedBytes.add(img);
-            }
-            if (selectedBytes.isNotEmpty) {
-              SelectedImagesDetails details = SelectedImagesDetails(
-                selectedFiles: selectedBytes,
-                multiSelectionMode: true,
-                aspectRatio: aspect,
-              );
-              if (!mounted) return;
+            if (widget.bytesArrayExport) {
+              final selectedBytes = await parseFile() as List<SelectedByte>;
 
-              if (widget.callbackFunction != null) {
-                await widget.callbackFunction!(details);
-              } else {
-                showDoneLoading.value = false;
-                Navigator.of(context).maybePop(details);
+              if (selectedBytes.isNotEmpty) {
+                SelectedImagesDetails details = SelectedImagesDetails(
+                  selectedFiles: selectedBytes,
+                  multiSelectionMode: true,
+                  aspectRatio: aspect,
+                );
+                if (!mounted) return;
+
+                if (widget.callbackFunction != null) {
+                  await widget.callbackFunction!(details);
+                } else {
+                  showDoneLoading.value = false;
+                  Navigator.of(context).maybePop(details);
+                }
+              }
+            } else {
+              final files = await parseFile() as List<File>;
+
+              if (files.isNotEmpty) {
+                if (!mounted) return;
+
+                if (widget.callbackFunction != null) {
+                  await widget.callbackFunction!(files);
+                } else {
+                  showDoneLoading.value = false;
+                  Navigator.of(context).maybePop(files);
+                }
               }
             }
           } else {
@@ -634,25 +671,37 @@ class _ImagesViewPageState extends State<ImagesViewPage>
                 ? await cropImage(image)
                 : null;
             File img = croppedImage ?? image;
-            Uint8List byte = await img.readAsBytes();
 
-            SelectedByte selectedByte = SelectedByte(
-              isThatImage: !isThatVideo,
-              selectedFile: img,
-              selectedByte: byte,
-            );
-            SelectedImagesDetails details = SelectedImagesDetails(
-              multiSelectionMode: false,
-              aspectRatio: aspect,
-              selectedFiles: [selectedByte],
-            );
-            if (!mounted) return;
+            if (widget.bytesArrayExport) {
+              Uint8List byte = await img.readAsBytes();
 
-            if (widget.callbackFunction != null) {
-              await widget.callbackFunction!(details);
+              SelectedByte selectedByte = SelectedByte(
+                isThatImage: !isThatVideo,
+                selectedFile: img,
+                selectedByte: byte,
+              );
+              SelectedImagesDetails details = SelectedImagesDetails(
+                multiSelectionMode: false,
+                aspectRatio: aspect,
+                selectedFiles: [selectedByte],
+              );
+              if (!mounted) return;
+
+              if (widget.callbackFunction != null) {
+                await widget.callbackFunction!(details);
+              } else {
+                //TODO: hide loading
+                Navigator.of(context).maybePop(details);
+              }
             } else {
-              //TODO: hide loading
-              Navigator.of(context).maybePop(details);
+              if (!mounted) return;
+
+              if (widget.callbackFunction != null) {
+                await widget.callbackFunction!(img);
+              } else {
+                //TODO: hide loading
+                Navigator.of(context).maybePop(img);
+              }
             }
           }
         },

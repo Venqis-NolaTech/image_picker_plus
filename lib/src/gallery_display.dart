@@ -49,6 +49,7 @@ class CustomImagePickerState extends State<CustomImagePicker>
   late Icon? cameraIcon;
   late int? cacheSizeImage;
   late int pageImageSize;
+  late bool bytesArrayExport;
   final isImagesReady = ValueNotifier(false);
   final currentPage = ValueNotifier(0);
   final lastPage = ValueNotifier(0);
@@ -67,7 +68,7 @@ class CustomImagePickerState extends State<CustomImagePicker>
   late bool cameraAndVideoEnabled;
   late bool cameraVideoOnlyEnabled;
   late bool showAllTabs;
-  late AsyncValueSetter<SelectedImagesDetails>? callbackFunction;
+  late AsyncValueSetter<dynamic>? callbackFunction;
 
   ValueNotifier<List<FutureBuilder<Uint8List?>>> mediaListCurrentAlbum =
       ValueNotifier([]);
@@ -96,6 +97,8 @@ class CustomImagePickerState extends State<CustomImagePicker>
 
     cacheSizeImage = imagePickerDisplay.cacheSizeImage;
     pageImageSize = imagePickerDisplay.pageImageSize;
+
+    bytesArrayExport = imagePickerDisplay.byteArrayExport;
 
     showImagePreview = cropImage || imagePickerDisplay.showImagePreview;
     gridDelegate = imagePickerDisplay.gridDelegate;
@@ -376,6 +379,7 @@ class CustomImagePickerState extends State<CustomImagePicker>
       enableVideo: enableVideo,
       cacheSizeImage: cacheSizeImage,
       pageImageSize: pageImageSize,
+      bytesArrayExport: bytesArrayExport,
     );
   }
 
