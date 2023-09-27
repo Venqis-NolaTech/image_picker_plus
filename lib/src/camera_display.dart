@@ -419,7 +419,7 @@ class CustomCameraDisplayState extends State<CustomCameraDisplay> {
         if (selectedVideo != null) {
           Uint8List byte = await selectedVideo.readAsBytes();
 
-          SelectedByte selectedByte = SelectedByte(
+          SelectedImage selectedByte = SelectedImage(
             isThatImage: false,
             selectedFile: selectedVideo,
             selectedByte: byte,
@@ -436,7 +436,7 @@ class CustomCameraDisplayState extends State<CustomCameraDisplay> {
           if (croppedByte != null) {
             Uint8List byte = await croppedByte.readAsBytes();
 
-            SelectedByte selectedByte = SelectedByte(
+            SelectedImage selectedByte = SelectedImage(
               isThatImage: true,
               selectedFile: croppedByte,
               selectedByte: byte,

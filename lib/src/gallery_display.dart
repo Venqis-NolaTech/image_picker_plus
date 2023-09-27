@@ -68,7 +68,7 @@ class CustomImagePickerState extends State<CustomImagePicker>
   late bool cameraAndVideoEnabled;
   late bool cameraVideoOnlyEnabled;
   late bool showAllTabs;
-  late AsyncValueSetter<dynamic>? callbackFunction;
+  late AsyncValueSetter<SelectedImagesDetails>? callbackFunction;
 
   ValueNotifier<List<FutureBuilder<Uint8List?>>> mediaListCurrentAlbum =
       ValueNotifier([]);

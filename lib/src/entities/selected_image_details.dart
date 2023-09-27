@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 
 class SelectedImagesDetails {
-  List<SelectedByte> selectedFiles;
+  List<SelectedImage> selectedFiles;
   double aspectRatio;
   bool multiSelectionMode;
 
@@ -14,14 +14,14 @@ class SelectedImagesDetails {
   });
 }
 
-class SelectedByte {
+class SelectedImage {
   File selectedFile;
-  Uint8List selectedByte;
+  Uint8List? selectedByte;
 
   bool isThatImage;
-  SelectedByte({
+  SelectedImage({
     required this.isThatImage,
     required this.selectedFile,
-    required this.selectedByte,
+    this.selectedByte,
   });
 }

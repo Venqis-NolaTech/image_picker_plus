@@ -24,7 +24,7 @@ class ImagesViewPage extends StatefulWidget {
   final bool showInternalVideos;
   final bool showInternalImages;
   final int maximumSelection;
-  final AsyncValueSetter<dynamic>? callbackFunction;
+  final AsyncValueSetter<SelectedImagesDetails>? callbackFunction;
   final VoidCallback? moveToCamera;
 
   final ButtonStyle? multiSelectIconBtnStyle;
@@ -581,8 +581,8 @@ class _ImagesViewPageState extends State<ImagesViewPage>
           size: 30,
         ),
         onPressed: () async {
-          Future<List<dynamic>> parseFile() async {
-            final files = <dynamic>[];
+          Future<List<SelectedImage>> parseFile() async {
+            final files = <SelectedImage>[];
 
             for (int i = 0; i < widget.multiSelectedImages.value.length; i++) {
               File currentImage = widget.multiSelectedImages.value[i];
@@ -596,17 +596,14 @@ class _ImagesViewPageState extends State<ImagesViewPage>
 
               File image = croppedImage ?? currentImage;
 
-              if (widget.bytesArrayExport) {
-                Uint8List byte = await image.readAsBytes();
-                SelectedByte img = SelectedByte(
-                  isThatImage: !isThatVideo,
-                  selectedFile: image,
-                  selectedByte: byte,
-                );
-                files.add(img);
-              } else {
-                files.add(image);
-              }
+              SelectedImage img = SelectedImage(
+                isThatImage: !isThatVideo,
+                selectedFile: image,
+                selectedByte:
+                    widget.bytesArrayExport ? await image.readAsBytes() : null,
+              );
+
+              files.add(img);
             }
 
             return files;
@@ -629,36 +626,21 @@ class _ImagesViewPageState extends State<ImagesViewPage>
               }
             }
 
-            if (widget.bytesArrayExport) {
-              final selectedBytes = await parseFile() as List<SelectedByte>;
+            final selectedBytes = await parseFile();
 
-              if (selectedBytes.isNotEmpty) {
-                SelectedImagesDetails details = SelectedImagesDetails(
-                  selectedFiles: selectedBytes,
-                  multiSelectionMode: true,
-                  aspectRatio: aspect,
-                );
-                if (!mounted) return;
+            if (selectedBytes.isNotEmpty) {
+              SelectedImagesDetails details = SelectedImagesDetails(
+                selectedFiles: selectedBytes,
+                multiSelectionMode: true,
+                aspectRatio: aspect,
+              );
+              if (!mounted) return;
 
-                if (widget.callbackFunction != null) {
-                  await widget.callbackFunction!(details);
-                } else {
-                  showDoneLoading.value = false;
-                  Navigator.of(context).maybePop(details);
-                }
-              }
-            } else {
-              final files = await parseFile() as List<File>;
-
-              if (files.isNotEmpty) {
-                if (!mounted) return;
-
-                if (widget.callbackFunction != null) {
-                  await widget.callbackFunction!(files);
-                } else {
-                  showDoneLoading.value = false;
-                  Navigator.of(context).maybePop(files);
-                }
+              if (widget.callbackFunction != null) {
+                await widget.callbackFunction!(details);
+              } else {
+                showDoneLoading.value = false;
+                Navigator.of(context).maybePop(details);
               }
             }
           } else {
@@ -672,36 +654,25 @@ class _ImagesViewPageState extends State<ImagesViewPage>
                 : null;
             File img = croppedImage ?? image;
 
-            if (widget.bytesArrayExport) {
-              Uint8List byte = await img.readAsBytes();
+            SelectedImage selectedByte = SelectedImage(
+              isThatImage: !isThatVideo,
+              selectedFile: img,
+              selectedByte:
+                  widget.bytesArrayExport ? await img.readAsBytes() : null,
+            );
 
-              SelectedByte selectedByte = SelectedByte(
-                isThatImage: !isThatVideo,
-                selectedFile: img,
-                selectedByte: byte,
-              );
-              SelectedImagesDetails details = SelectedImagesDetails(
-                multiSelectionMode: false,
-                aspectRatio: aspect,
-                selectedFiles: [selectedByte],
-              );
-              if (!mounted) return;
+            SelectedImagesDetails details = SelectedImagesDetails(
+              multiSelectionMode: false,
+              aspectRatio: aspect,
+              selectedFiles: [selectedByte],
+            );
+            if (!mounted) return;
 
-              if (widget.callbackFunction != null) {
-                await widget.callbackFunction!(details);
-              } else {
-                //TODO: hide loading
-                Navigator.of(context).maybePop(details);
-              }
+            if (widget.callbackFunction != null) {
+              await widget.callbackFunction!(details);
             } else {
-              if (!mounted) return;
-
-              if (widget.callbackFunction != null) {
-                await widget.callbackFunction!(img);
-              } else {
-                //TODO: hide loading
-                Navigator.of(context).maybePop(img);
-              }
+              //TODO: hide loading
+              Navigator.of(context).maybePop(details);
             }
           }
         },

@@ -288,7 +288,7 @@ class _MyHomePageState extends State<MyHomePage> {
 }
 
 class DisplayImages extends StatefulWidget {
-  final List<SelectedByte> selectedBytes;
+  final List<SelectedImage> selectedBytes;
   final double aspectRatio;
   final SelectedImagesDetails details;
   const DisplayImages({
@@ -309,7 +309,7 @@ class _DisplayImagesState extends State<DisplayImages> {
       appBar: AppBar(title: const Text('Selected images/videos')),
       body: ListView.builder(
         itemBuilder: (context, index) {
-          SelectedByte selectedByte = widget.selectedBytes[index];
+          SelectedImage selectedByte = widget.selectedBytes[index];
           if (!selectedByte.isThatImage) {
             return _DisplayVideo(selectedByte: selectedByte);
           } else {
@@ -326,7 +326,7 @@ class _DisplayImagesState extends State<DisplayImages> {
 }
 
 class _DisplayVideo extends StatefulWidget {
-  final SelectedByte selectedByte;
+  final SelectedImage selectedByte;
   const _DisplayVideo({Key? key, required this.selectedByte}) : super(key: key);
 
   @override

@@ -10,7 +10,7 @@ class GalleryDisplaySettings {
   SliverGridDelegateWithFixedCrossAxisCount gridDelegate;
   bool showImagePreview;
   int maximumSelection;
-  final AsyncValueSetter<dynamic>? callbackFunction;
+  final AsyncValueSetter<SelectedImagesDetails>? callbackFunction;
 
   /// If [cropImage] true [showImagePreview] will be true
   /// Right now this package not support crop video
