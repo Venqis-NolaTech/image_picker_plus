@@ -665,34 +665,38 @@ class _DisplayVideoState extends State<_DisplayVideo> {
                 }
               });
             },
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                InteractiveViewer(
-                  minScale: 1,
-                  child: FittedBox(
-                    fit: BoxFit.cover,
-                    child: SizedBox(
-                      // height: double.infinity,
-                      // width: double.infinity,
-                      height: controller.value.size.height,
-                      width: controller.value.size.width,
-                      child: VideoPlayer(controller),
+            child: Center(
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  AspectRatio(
+                    aspectRatio: controller.value.aspectRatio,
+                    child: VideoPlayer(controller),
+                  ),
+                  AnimatedBuilder(
+                    animation: controller,
+                    builder: (_, __) => AnimatedOpacity(
+                      opacity: controller.value.isPlaying ? 0 : 1,
+                      duration: kThemeAnimationDuration,
+                      child: GestureDetector(
+                        onTap: controller.play,
+                        child: Container(
+                          width: 40,
+                          height: 40,
+                          decoration: const BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.play_arrow,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ),
                     ),
                   ),
-                ),
-                Align(
-                  alignment: Alignment.center,
-                  child: Icon(
-                    controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
-                    color: Colors.white,
-                    shadows: const <Shadow>[
-                      Shadow(color: Colors.black38, blurRadius: 8.0)
-                    ],
-                    size: 58,
-                  ),
-                )
-              ],
+                ],
+              ),
             ),
           );
         } else {
