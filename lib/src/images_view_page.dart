@@ -10,6 +10,7 @@ import 'package:image_picker_plus/src/image.dart';
 import 'package:image_picker_plus/src/multi_selection_mode.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker_plus/src/utilities/file_util.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -588,7 +589,7 @@ class _ImagesViewPageState extends State<ImagesViewPage>
               File currentImage = widget.multiSelectedImages.value[i];
               String path = currentImage.path;
 
-              bool isThatVideo = path.contains("mp4", path.length - 5);
+              bool isThatVideo = FileUtil.isThatVideo(path);
 
               File? croppedImage = !isThatVideo && widget.cropImage
                   ? await cropImage(currentImage, indexOfCropImage: i)
@@ -648,7 +649,7 @@ class _ImagesViewPageState extends State<ImagesViewPage>
             if (image == null) return;
             String path = image.path;
 
-            bool isThatVideo = path.contains("mp4", path.length - 5);
+            bool isThatVideo = FileUtil.isThatVideo(path);
             File? croppedImage = !isThatVideo && widget.cropImage
                 ? await cropImage(image)
                 : null;

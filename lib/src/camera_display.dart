@@ -8,6 +8,7 @@ import 'package:image_picker_plus/src/entities/app_theme.dart';
 import 'package:image_picker_plus/src/custom_packages/crop_image/crop_image.dart';
 import 'package:image_picker_plus/src/entities/image_picker_display.dart';
 import 'package:image_picker_plus/src/utilities/enum.dart';
+import 'package:image_picker_plus/src/utilities/file_util.dart';
 import 'package:image_picker_plus/src/video_layout/record_count.dart';
 import 'package:image_picker_plus/src/video_layout/record_fade_animation.dart';
 import 'package:image_picker_plus/src/entities/selected_image_details.dart';
@@ -365,7 +366,7 @@ class CustomCameraDisplayState extends State<CustomCameraDisplay> {
 
   CustomCrop buildCrop(File selectedFile) {
     String path = selectedFile.path;
-    bool isThatVideo = path.contains("mp4", path.length - 5);
+    bool isThatVideo = FileUtil.isThatVideo(path);
 
     return CustomCrop(
       image: selectedFile,

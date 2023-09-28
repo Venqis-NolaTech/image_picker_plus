@@ -6,6 +6,7 @@ import 'package:image_picker_plus/src/custom_packages/crop_image/crop_image.dart
 import 'package:image_picker_plus/src/entities/app_theme.dart';
 import 'package:image_picker_plus/src/entities/path_wrapper.dart';
 import 'package:image_picker_plus/src/scale_text.dart';
+import 'package:image_picker_plus/src/utilities/file_util.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:image_picker_plus/src/utilities/extension.dart';
 
@@ -121,7 +122,7 @@ class _CropImageViewState extends State<CropImageView> {
     final height = width + kToolbarHeight;
 
     String path = selectedImageValue.path;
-    bool isThatVideo = path.contains("mp4", path.length - 5);
+    bool isThatVideo = FileUtil.isThatVideo(path);
 
     return Container(
       key: GlobalKey(debugLabel: "have image"),
@@ -139,8 +140,11 @@ class _CropImageViewState extends State<CropImageView> {
                   ValueListenableBuilder(
                       valueListenable: widget.expandImage,
                       builder: (context, bool expandImageValue, child) =>
-                          _cropImageWidget(selectedImageValue, expandImageValue,
-                              isThatVideo)),
+                          _cropImageWidget(
+                            selectedImageValue,
+                            expandImageValue,
+                            isThatVideo,
+                          )),
                   if (!isThatVideo)
                     Align(
                       alignment: Alignment.bottomLeft,
