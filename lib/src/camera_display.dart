@@ -57,7 +57,8 @@ class CustomCameraDisplay extends StatefulWidget {
   CustomCameraDisplayState createState() => CustomCameraDisplayState();
 }
 
-class CustomCameraDisplayState extends State<CustomCameraDisplay> {
+class CustomCameraDisplayState extends State<CustomCameraDisplay>
+    with WidgetsBindingObserver {
   ValueNotifier<bool> startVideoCount = ValueNotifier(false);
   ValueNotifier<Duration> recordStopwatch = ValueNotifier(Duration.zero);
 
@@ -68,8 +69,7 @@ class CustomCameraDisplayState extends State<CustomCameraDisplay> {
   bool initializeDone = false;
   bool allPermissionsAccessed = true;
 
-  List<CameraDescription>? cameras;
-  late CameraController controller;
+  CameraController? controller;
 
   final cropKey = GlobalKey<CustomCropState>();
 
@@ -81,15 +81,6 @@ class CustomCameraDisplayState extends State<CustomCameraDisplay> {
       widget.galleryDisplaySettings.maximumRecordingDuration != null;
 
   @override
-  void dispose() {
-    startVideoCount.dispose();
-    controller.dispose();
-    recordCountdownTimer?.cancel();
-
-    super.dispose();
-  }
-
-  @override
   void initState() {
     videoStatusAnimation = Container();
     _initializeCamera();
@@ -97,35 +88,88 @@ class CustomCameraDisplayState extends State<CustomCameraDisplay> {
     super.initState();
   }
 
+  @override
+  void dispose() {
+    initializeDone = false;
+    startVideoCount.dispose();
+    controller?.dispose();
+    recordCountdownTimer?.cancel();
+
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    final CameraController? cameraController = controller;
+
+    // App state changed before we got the chance to initialize.
+    if (cameraController == null || !cameraController.value.isInitialized) {
+      return;
+    }
+
+    if (state == AppLifecycleState.inactive) {
+      // Free up memory when camera not active
+      cameraController.dispose();
+    } else if (state == AppLifecycleState.resumed) {
+      // Reinitialize the camera with same properties
+      _initializeCamera();
+    }
+  }
+
   Future<void> _initializeCamera() async {
     try {
       PermissionState state = await PhotoManager.requestPermissionExtend();
+
       if (!state.hasAccess || !state.isAuth) {
         allPermissionsAccessed = false;
         return;
       }
+
       allPermissionsAccessed = true;
-      cameras = await availableCameras();
-      if (!mounted) return;
-      controller = CameraController(
-        cameras![selectedCamera],
-        ResolutionPreset.high,
+
+      final previousController = controller;
+
+      // Get availables cameras.
+      final cameras = await availableCameras();
+
+      // Instantiating the camera controller
+      final CameraController newController = CameraController(
+        cameras[selectedCamera],
+        ResolutionPreset.veryHigh,
         enableAudio: true,
+        imageFormatGroup: ImageFormatGroup.jpeg,
       );
-      await controller.initialize();
+
+      // Dispose the previous controller
+      await previousController?.dispose();
+
+      // Replace with the new controller
+      if (mounted) {
+        setState(() {
+          controller = newController;
+        });
+      }
+
+      // Update UI if controller updated
+      newController.addListener(() {
+        if (mounted) setState(() {});
+      });
+
+      await newController.initialize();
       initializeDone = true;
     } catch (e) {
       allPermissionsAccessed = false;
     }
+
     setState(() {});
   }
 
   Future<void> _startRecordingVideo() async {
-    if (controller.value.isRecordingVideo) {
+    if (controller?.value.isRecordingVideo == true) {
       return;
     }
 
-    await controller.startVideoRecording();
+    await controller?.startVideoRecording();
     widget.moveToVideoScreen();
     if (isRecordingRestricted) {
       recordCountdownTimer = Timer(
@@ -142,7 +186,7 @@ class CustomCameraDisplayState extends State<CustomCameraDisplay> {
       setState(() {});
     }
 
-    if (!controller.value.isRecordingVideo) {
+    if (!(controller?.value.isRecordingVideo == true)) {
       handleError();
       return;
     }
@@ -153,16 +197,19 @@ class CustomCameraDisplayState extends State<CustomCameraDisplay> {
       widget.replacingTabBar(true);
     });
 
-    final XFile video = await controller.stopVideoRecording();
-    if (recordStopwatch.value <
-        widget.galleryDisplaySettings.minimumRecordingDuration) {
-      return;
-    }
-    File selectedVideo = File(video.path);
+    final XFile? video = await controller?.stopVideoRecording();
+    final isTimeOutRecording = recordStopwatch.value <
+        widget.galleryDisplaySettings.minimumRecordingDuration;
 
-    setState(() {
-      widget.selectedCameraVideo.value = selectedVideo;
-    });
+    if (isTimeOutRecording) return;
+
+    if (video != null) {
+      File selectedVideo = File(video.path);
+
+      setState(() {
+        widget.selectedCameraVideo.value = selectedVideo;
+      });
+    }
   }
 
   @override
@@ -220,7 +267,8 @@ class CustomCameraDisplayState extends State<CustomCameraDisplay> {
             ? SizedBox(
                 height: height,
                 width: width,
-                child: CameraPreview(controller),
+                child:
+                    (initializeDone) ? CameraPreview(controller!) : Container(),
               )
             : SizedBox(
                 height: height,
@@ -345,10 +393,10 @@ class CustomCameraDisplayState extends State<CustomCameraDisplay> {
                 : (currentFlashMode == Flash.auto ? Flash.on : Flash.off);
           });
           currentFlashMode == Flash.on
-              ? controller.setFlashMode(FlashMode.torch)
+              ? controller!.setFlashMode(FlashMode.torch)
               : currentFlashMode == Flash.off
-                  ? controller.setFlashMode(FlashMode.off)
-                  : controller.setFlashMode(FlashMode.auto);
+                  ? controller!.setFlashMode(FlashMode.off)
+                  : controller!.setFlashMode(FlashMode.auto);
         },
         icon: Icon(
           currentFlashMode == Flash.on
@@ -395,6 +443,9 @@ class CustomCameraDisplayState extends State<CustomCameraDisplay> {
       leading: IconButton(
         icon: Icon(Icons.clear_rounded, color: blackColor, size: 30),
         onPressed: () {
+          widget.selectedCameraImage.value = null;
+          widget.selectedCameraVideo.value = null;
+
           widget.bothSource
               ? widget.moveToGalleryScreen?.call()
               : Navigator.of(context).maybePop(null);
@@ -512,7 +563,7 @@ class CustomCameraDisplayState extends State<CustomCameraDisplay> {
                 ),
               ),
             ),
-            if (controller.value.isRecordingVideo)
+            if (controller?.value.isRecordingVideo == true)
               CameraProgressButton(
                 isAnimating: isShootingButtonAnimate,
                 duration:
@@ -529,14 +580,17 @@ class CustomCameraDisplayState extends State<CustomCameraDisplay> {
 
   onTap() async {
     try {
-      if (!widget.selectedVideo) {
-        final image = await controller.takePicture();
-        File selectedImage = File(image.path);
+      if (!widget.selectedVideo && controller?.value.isInitialized == true) {
+        final image = await controller?.takePicture();
 
-        setState(() {
-          widget.selectedCameraImage.value = selectedImage;
-          widget.replacingTabBar(true);
-        });
+        if (image != null) {
+          File selectedImage = File(image.path);
+
+          setState(() {
+            widget.selectedCameraImage.value = selectedImage;
+            widget.replacingTabBar(true);
+          });
+        }
       } else {
         setState(() {
           videoStatusAnimation = buildFadeAnimation();
