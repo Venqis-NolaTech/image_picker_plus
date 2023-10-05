@@ -341,6 +341,7 @@ class _ImagesViewPageState extends State<ImagesViewPage>
     for (int i = 0; i < media.length; i++) {
       FutureBuilder<Uint8List?> gridViewImage = await getImageGallery(media, i);
       File? image = await highQualityImage(media, i);
+
       temp.add(gridViewImage);
       imageTemp.add(image);
     }
@@ -401,7 +402,7 @@ class _ImagesViewPageState extends State<ImagesViewPage>
   }
 
   Future<File?> highQualityImage(List<AssetEntity> media, int i) async =>
-      media[i].originFile;
+      Platform.isIOS ? media[i].fileWithSubtype : media[i].file;
 
   @override
   Widget build(BuildContext context) {
@@ -653,6 +654,7 @@ class _ImagesViewPageState extends State<ImagesViewPage>
             File? croppedImage = !isThatVideo && widget.cropImage
                 ? await cropImage(image)
                 : null;
+
             File img = croppedImage ?? image;
 
             SelectedImage selectedByte = SelectedImage(
