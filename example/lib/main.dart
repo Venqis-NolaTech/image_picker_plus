@@ -204,6 +204,7 @@ class _MyHomePageState extends State<MyHomePage> {
             appThemeCameraInvert: true,
             cacheSizeImage: 128,
             pageImageSize: 20,
+            byteArrayExport: false,
             multiSelectIconBtnStyle: ElevatedButton.styleFrom(
               elevation: 0,
               padding: EdgeInsets.zero,
@@ -230,6 +231,11 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
           ),
         );
+
+        print(
+          "original path: ${details!.selectedFiles.first.selectedFile.path}",
+        );
+
         if (details != null) await displayDetails(details);
       },
       child: const Text("Preview 3"),

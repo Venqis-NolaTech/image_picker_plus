@@ -401,7 +401,7 @@ class _ImagesViewPageState extends State<ImagesViewPage>
   }
 
   Future<File?> highQualityImage(List<AssetEntity> media, int i) async =>
-      media[i].file;
+      media[i].originFile;
 
   @override
   Widget build(BuildContext context) {
