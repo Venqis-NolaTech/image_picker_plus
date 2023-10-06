@@ -99,6 +99,7 @@ class _ImagesViewPageState extends State<ImagesViewPage>
   ValueNotifier<List<int>> indexOfSelectedImages = ValueNotifier([]);
 
   ValueNotifier<bool> showDoneLoading = ValueNotifier(false);
+  ValueNotifier<bool> _loadingMore = ValueNotifier(false);
 
   ScrollController scrollController = ScrollController();
 
@@ -321,13 +322,18 @@ class _ImagesViewPageState extends State<ImagesViewPage>
       {required int currentPageValue, required int lastPageValue}) {
     if (scroll.metrics.pixels / scroll.metrics.maxScrollExtent > 0.33 &&
         currentPageValue != lastPageValue) {
-      _fetchNewMedia(currentPageValue);
+      _loadingMore.value = true;
+
+      _fetchNewMedia(currentPageValue).then((_) {
+        _loadingMore.value = false;
+      });
+
       return true;
     }
     return false;
   }
 
-  _fetchNewMedia(int currentPageValue, {AssetPathEntity? path}) async {
+  Future _fetchNewMedia(int currentPageValue, {AssetPathEntity? path}) async {
     lastPage.value = currentPageValue;
     path ??= currentPath!.path;
 
@@ -979,17 +985,33 @@ class _ImagesViewPageState extends State<ImagesViewPage>
                         );
                         return true;
                       },
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: widget.gridDelegate.crossAxisSpacing),
-                        child: GridView.builder(
-                          gridDelegate: widget.gridDelegate,
-                          controller: scrollController,
-                          itemBuilder: (context, index) {
-                            return buildImage(mediaListValue, index);
-                          },
-                          itemCount: mediaListValue.length,
-                        ),
+                      child: Column(
+                        children: [
+                          Expanded(
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal:
+                                      widget.gridDelegate.crossAxisSpacing),
+                              child: GridView.builder(
+                                gridDelegate: widget.gridDelegate,
+                                controller: scrollController,
+                                itemBuilder: (context, index) {
+                                  return buildImage(mediaListValue, index);
+                                },
+                                itemCount: mediaListValue.length,
+                              ),
+                            ),
+                          ),
+                          ValueListenableBuilder<bool>(
+                            valueListenable: _loadingMore,
+                            builder: (context, value, child) {
+                              return Visibility(
+                                visible: value,
+                                child: const LinearProgressIndicator(),
+                              );
+                            },
+                          ),
+                        ],
                       ),
                     ),
                   ),
