@@ -43,7 +43,7 @@ class CropImageView extends StatefulWidget {
   final PathWrapper<AssetPathEntity>? assetPathSelected;
   final Function(PathWrapper<AssetPathEntity>?) onAssetPathChanged;
 
-  const CropImageView({
+  CropImageView({
     Key? key,
     required this.indexOfSelectedImages,
     required this.cropKey,
@@ -75,6 +75,8 @@ class CropImageView extends StatefulWidget {
 }
 
 class _CropImageViewState extends State<CropImageView> {
+  Widget? _listPathsDropDown;
+
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
@@ -199,7 +201,7 @@ class _CropImageViewState extends State<CropImageView> {
   Widget _pathsDropDownButton() {
     final items = widget.assetPaths;
 
-    return DropdownButtonHideUnderline(
+    _listPathsDropDown ??= DropdownButtonHideUnderline(
       child: DropdownButton<PathWrapper<AssetPathEntity>>(
         value: widget.assetPathSelected,
         items: items.map(
@@ -275,6 +277,8 @@ class _CropImageViewState extends State<CropImageView> {
         onChanged: widget.onAssetPathChanged,
       ),
     );
+
+    return _listPathsDropDown!;
   }
 
   Widget _cropIconBtn() {
