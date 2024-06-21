@@ -282,22 +282,28 @@ class _CropImageViewState extends State<CropImageView> {
   }
 
   Widget _cropIconBtn() {
-    return ElevatedButton(
-      onPressed: () {
+    return GestureDetector(
+      onTap: () {
         setState(() {
           widget.expandImage.value = !widget.expandImage.value;
         });
       },
-      style: ElevatedButton.styleFrom(
-        elevation: 0,
-        fixedSize: const Size.fromRadius(19),
-        shape: const CircleBorder(),
-        backgroundColor: const Color.fromARGB(165, 58, 58, 58),
-      ),
-      child: const SizedBox(
-        width: 35,
-        height: 35,
-        child: CustomExpandIcon(),
+      // style: ElevatedButton.styleFrom(
+      //   elevation: 0,
+      //   fixedSize: const Size.fromRadius(19),
+      //   shape: const CircleBorder(),
+      //   backgroundColor: const Color.fromARGB(165, 58, 58, 58),
+      // ),
+      child: Container(
+        decoration: const BoxDecoration(
+          shape: BoxShape.circle,
+          color: Color.fromARGB(165, 58, 58, 58),
+        ),
+        child: const SizedBox(
+          width: 35,
+          height: 35,
+          child: CustomExpandIcon(),
+        ),
       ),
     );
   }

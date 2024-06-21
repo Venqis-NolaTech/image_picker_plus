@@ -13,7 +13,7 @@ class CustomExpandIcon extends StatelessWidget {
           child: Align(
             alignment: Alignment.topRight,
             child: Transform.rotate(
-              angle: 180 * math.pi / 250,
+              angle: 190 * math.pi / 250,
               child: const Icon(
                 Icons.arrow_back_ios_rounded,
                 color: Colors.white,
@@ -27,7 +27,7 @@ class CustomExpandIcon extends StatelessWidget {
           child: Align(
             alignment: Alignment.bottomLeft,
             child: Transform.rotate(
-              angle: 180 * math.pi / 255,
+              angle: 190 * math.pi / 255,
               child: const Icon(
                 Icons.arrow_forward_ios_rounded,
                 color: Colors.white,
